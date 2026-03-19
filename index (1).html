@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cronograma · IFCE 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0f11; --surface: #18181c; --surface2: #202026;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.13);
+  --text: #e8e8ec; --muted: #6b6b78;
+  --accent: #7c6ff7; --accent-dim: rgba(124,111,247,0.12);
+  --port: #4f8ef7; --port-bg: rgba(79,142,247,0.1);
+  --lei: #f76b6b;  --lei-bg:  rgba(247,107,107,0.1);
+  --adm: #52c97a;  --adm-bg:  rgba(82,201,122,0.1);
+  --info: #f5a623; --info-bg: rgba(245,166,35,0.1);
+  --rev: #8a8a96;  --rev-bg:  rgba(138,138,150,0.1);
+  --sim: #ff7b54;  --sim-bg:  rgba(255,123,84,0.1);
+  --done-bg: rgba(82,201,122,0.05);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 2rem 1rem 5rem; }
+.container { max-width: 840px; margin: 0 auto; }
+
+.pulse-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; margin-right: 6px; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+.live-tag { display: inline-flex; align-items: center; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: .08em; color: var(--accent); background: var(--accent-dim); padding: 4px 12px; border-radius: 20px; margin-bottom: 1rem; }
+
+h1 { font-size: clamp(22px,5vw,30px); font-weight: 300; letter-spacing: -.02em; line-height: 1.2; margin-bottom: 6px; }
+h1 span { color: var(--muted); }
+.subtitle { font-size: 13px; color: var(--muted); font-family: 'DM Mono', monospace; letter-spacing: .03em; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px,1fr)); gap: 8px; margin: 1.5rem 0 1.75rem; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+.stat-val { font-size: 22px; font-weight: 500; font-family: 'DM Mono', monospace; letter-spacing: -.02em; }
+.stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.progress-wrap { margin-bottom: 1.75rem; }
+.progress-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.progress-label { font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; }
+.progress-bar { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width .4s ease; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 1.5rem; }
+.leg { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.leg-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+.tabs { display: flex; gap: 2px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; margin-bottom: 1.5rem; overflow-x: auto; }
+.tab { flex: 1; min-width: 62px; padding: 7px 10px; font-size: 12px; font-family: 'DM Mono', monospace; font-weight: 500; text-align: center; border-radius: 7px; border: none; cursor: pointer; background: transparent; color: var(--muted); transition: all .15s; white-space: nowrap; }
+.tab:hover { color: var(--text); background: var(--surface2); }
+.tab.active { background: var(--surface2); color: var(--text); border: 1px solid var(--border2); }
+.tab .wc { display: none; }
+.tab.week-done .wc { display: inline; margin-left: 3px; color: var(--adm); font-size: 10px; }
+
+.week { display: none; }
+.week.active { display: block; }
+.week-header { font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.week-focus { font-size: 12px; color: var(--muted); margin-bottom: 1rem; padding-left: 12px; border-left: 2px solid var(--accent); line-height: 1.5; }
+
+.law-alert { display: flex; gap: 10px; align-items: flex-start; background: rgba(247,107,107,0.08); border: 0.5px solid rgba(247,107,107,0.25); border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; font-size: 12px; color: var(--lei); line-height: 1.6; }
+
+.day-grid { display: flex; flex-direction: column; gap: 6px; }
+.day-row { display: grid; grid-template-columns: 108px 1fr; gap: 12px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; transition: border-color .15s, background .2s; cursor: pointer; }
+.day-row:hover { border-color: var(--border2); }
+.day-row.done { background: var(--done-bg); border-color: rgba(82,201,122,0.2); }
+.day-row.prova { border-color: var(--accent); background: var(--accent-dim); cursor: default; }
+
+.day-left { display: flex; flex-direction: column; gap: 3px; }
+.day-label { font-size: 13px; font-weight: 500; color: var(--text); }
+.day-sub { font-size: 11px; color: var(--accent); font-family: 'DM Mono', monospace; }
+
+.check-area { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.check-box { width: 16px; height: 16px; border-radius: 4px; border: 1px solid var(--border2); background: transparent; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; }
+.done .check-box { background: var(--adm); border-color: var(--adm); }
+.check-lbl { font-size: 11px; color: var(--muted); }
+.done .check-lbl { color: var(--adm); }
+.chk-icon { display: none; }
+.done .chk-icon { display: block; }
+
+.blocks { display: flex; flex-direction: column; gap: 5px; }
+.block { display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
+.btime { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; min-width: 82px; padding-top: 2px; }
+.bright { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.btag { font-size: 11px; font-weight: 500; padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
+.bdesc { font-size: 12px; color: var(--muted); }
+
+.tag-port { background: var(--port-bg); color: var(--port); }
+.tag-lei  { background: var(--lei-bg);  color: var(--lei); }
+.tag-adm  { background: var(--adm-bg);  color: var(--adm); }
+.tag-info { background: var(--info-bg); color: var(--info); }
+.tag-rev  { background: var(--rev-bg);  color: var(--rev); }
+.tag-sim  { background: var(--sim-bg);  color: var(--sim); }
+
+.note { margin-top: 10px; font-size: 12px; color: var(--accent); background: var(--accent-dim); border-radius: 8px; padding: 10px 14px; font-family: 'DM Mono', monospace; }
+.tip-box { margin-top: 10px; font-size: 12px; color: var(--muted); border-left: 2px solid var(--sim); padding-left: 12px; line-height: 1.7; }
+
+.footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; text-align: center; }
+.reset-btn { background: transparent; border: 0.5px solid var(--border2); color: var(--muted); font-size: 11px; font-family: 'DM Mono', monospace; padding: 5px 12px; border-radius: 20px; cursor: pointer; margin-left: 12px; }
+.reset-btn:hover { color: var(--text); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div style="margin-bottom:2.5rem;padding-bottom:2rem;border-bottom:1px solid var(--border)">
+  <div class="live-tag"><span class="pulse-dot"></span>ao vivo · <span id="dtag">45</span> dias para a prova</div>
+  <h1>Cronograma <span>IFCE 2026</span></h1>
+  <div class="subtitle">Assistente em Administração · 3h/noite · 20 mar → 03 mai</div>
+  <div class="stats" style="margin-top:1.25rem">
+    <div class="stat"><div class="stat-val" id="dstat">45</div><div class="stat-label">dias restantes</div></div>
+    <div class="stat"><div class="stat-val">135h</div><div class="stat-label">horas de estudo</div></div>
+    <div class="stat"><div class="stat-val">20</div><div class="stat-label">vagas imediatas</div></div>
+    <div class="stat"><div class="stat-val" id="done-stat">0</div><div class="stat-label">dias concluídos</div></div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-header"><span class="progress-label">progresso geral</span><span class="progress-label" id="ppct">0%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="pfill" style="width:0%"></div></div>
+  </div>
+  <div class="legend">
+    <span class="leg"><span class="leg-dot" style="background:var(--port)"></span>Português</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--lei)"></span>Legislação</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--adm)"></span>Administração</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--info)"></span>Informática</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--rev)"></span>Revisão</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--sim)"></span>Simulado</span>
+  </div>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab active" onclick="showWeek(0)">Sem 1<span class="wc">✓</span></button>
+  <button class="tab" onclick="showWeek(1)">Sem 2<span class="wc">✓</span></button>
+  <button class="tab" onclick="showWeek(2)">Sem 3<span class="wc">✓</span></button>
+  <button class="tab" onclick="showWeek(3)">Sem 4<span class="wc">✓</span></button>
+  <button class="tab" onclick="showWeek(4)">Sem 5<span class="wc">✓</span></button>
+  <button class="tab" onclick="showWeek(5)">Sem 6<span class="wc">✓</span></button>
+</div>
+
+<!-- helper macro rendered inline below -->
+
+<!-- SEMANA 1 -->
+<div id="week0" class="week active">
+  <div class="week-header">Semana 1 — Português + Lei 8.112 (base)</div>
+  <div class="week-focus">Foco: estrutura da prova e temas mais cobrados. Lei 8.112 é o maior eliminador — comece hoje.</div>
+  <div class="law-alert">📋 <span><strong>Legislação desta semana:</strong> Lei 8.112/90 arts. 1–250. Leia o texto literal — AOCP cobra a lei exatamente como está escrita.</span></div>
+  <div class="day-grid">
+
+    <div class="day-row" id="d0" onclick="tog('d0')">
+      <div class="day-left"><div class="day-label">Qui 20/03</div><div class="day-sub">hoje</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-port">Português</span><span class="bdesc">Interpretação de texto — técnicas de leitura</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-lei">Lei 8.112</span><span class="bdesc">Art. 1–50: provimento, posse, exercício</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">10 questões português + 10 questões Lei 8.112</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d1" onclick="tog('d1')">
+      <div class="day-left"><div class="day-label">Sex 21/03</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-port">Português</span><span class="bdesc">Classes de palavras e flexões</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-lei">Lei 8.112</span><span class="bdesc">Art. 51–100: direitos, vencimentos, férias</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões Lei 8.112 (filtrar banca AOCP)</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d2" onclick="tog('d2')">
+      <div class="day-left"><div class="day-label">Sáb 22/03</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-port">Português</span><span class="bdesc">Sintaxe: sujeito, predicado, complementos</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-lei">Lei 8.112</span><span class="bdesc">Art. 101–150: licenças e afastamentos</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões mistas Português + Lei</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d3" onclick="tog('d3')">
+      <div class="day-left"><div class="day-label">Dom 23/03</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-port">Português</span><span class="bdesc">Concordância verbal e nominal</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-lei">Lei 8.112</span><span class="bdesc">Art. 151–250: responsabilidades e PAD</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões — PAD e penalidades</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d4" onclick="tog('d4')">
+      <div class="day-left"><div class="day-label">Seg 24/03</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-port">Português</span><span class="bdesc">Regência verbal e nominal + crase</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-lei">Lei 8.112</span><span class="bdesc">Revisão geral — pontos fracos do dia</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">Mini simulado: 30 questões cronometradas</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d5" onclick="tog('d5')">
+      <div class="day-left"><div class="day-label">Ter 25/03</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-port">Português</span><span class="bdesc">Pontuação e coesão textual</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-adm">Administração</span><span class="bdesc">Funções PODC + teorias clássicas (Taylor, Fayol)</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões Administração geral</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d6" onclick="tog('d6')">
+      <div class="day-left"><div class="day-label">Qua 26/03</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h30</span><div class="bright"><span class="btag tag-rev">Revisão</span><span class="bdesc">Caderno de erros da semana no QConcursos</span></div></div>
+        <div class="block"><span class="btime">20h30–22h</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">Simulado semana 1: 40 questões</span></div></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="note">QConcursos: filtre por "Assistente em Administração" + "AOCP" + "Institutos Federais"</div>
+</div>
+
+<!-- SEMANA 2 -->
+<div id="week1" class="week">
+  <div class="week-header">Semana 2 — Legislação completa (8.112 + 11.091 + 11.892 + Decreto 1.171)</div>
+  <div class="week-focus">Foco: fechar as 4 leis que aparecem em toda prova AOCP de Instituto Federal. Texto literal.</div>
+  <div class="law-alert">📋 <span><strong>Adicionado vs cronograma anterior:</strong> Lei 11.091/2005 (carreira TAE), Lei 11.892/2008 (criação dos IFs) e Decreto 1.171/94 (ética) — confirmados nas provas reais AOCP/IFMA 2023 e AOCP/IFMS 2025.</span></div>
+  <div class="day-grid">
+
+    <div class="day-row" id="d7" onclick="tog('d7')">
+      <div class="day-left"><div class="day-label">Qui 27/03</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-lei">Lei 8.112</span><span class="bdesc">Revisão PAD + prazos prescricionais</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-lei">Lei 11.091</span><span class="bdesc">PCCTAE: classes, níveis, progressão, incentivos</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões Lei 8.112 + Lei 11.091</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d8" onclick="tog('d8')">
+      <div class="day-left"><div class="day-label">Sex 28/03</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-lei">Lei 11.892</span><span class="bdesc">Criação dos IFs: finalidades, objetivos, estrutura, autonomia</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-lei">Decreto 1.171</span><span class="bdesc">Código de Ética: deveres, proibições, vedações do servidor</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões Lei 11.892 + Decreto 1.171</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d9" onclick="tog('d9')">
+      <div class="day-left"><div class="day-label">Sáb 29/03</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Administração</span><span class="bdesc">Teorias: Mayo, Maslow, Herzberg, McGregor (X e Y)</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-port">Português</span><span class="bdesc">Redação oficial: ofício, memorando, ata</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões teorias + redação oficial</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d10" onclick="tog('d10')">
+      <div class="day-left"><div class="day-label">Dom 30/03</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Administração</span><span class="bdesc">Estruturas organizacionais + departamentalização</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-port">Português</span><span class="bdesc">Pronomes: emprego e colocação</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões estruturas + pronomes</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d11" onclick="tog('d11')">
+      <div class="day-left"><div class="day-label">Seg 31/03</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Adm Pública</span><span class="bdesc">Princípios LIMPE + modelos patrimonialista, burocrático, gerencial</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-port">Português</span><span class="bdesc">Ortografia, acentuação e pontuação</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões adm pública + ortografia</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d12" onclick="tog('d12')">
+      <div class="day-left"><div class="day-label">Ter 01/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-info">Informática</span><span class="bdesc">Hardware, software, SO Windows e Linux</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-info">Informática</span><span class="bdesc">Office: Word, Excel, PowerPoint — atalhos e funções cobrados AOCP</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões informática</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d13" onclick="tog('d13')">
+      <div class="day-left"><div class="day-label">Qua 02/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h30</span><div class="bright"><span class="btag tag-rev">Revisão</span><span class="bdesc">Caderno de erros da semana — foco nas leis</span></div></div>
+        <div class="block"><span class="btime">20h30–22h</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">Simulado semana 2: 40 questões cronometradas</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SEMANA 3 -->
+<div id="week2" class="week">
+  <div class="week-header">Semana 3 — Administração (aprofundamento) + Licitações + Informática</div>
+  <div class="week-focus">Foco: Conhecimentos Específicos tem 15 questões — o maior bloco da prova. É aqui que você pontua mais.</div>
+  <div class="day-grid">
+
+    <div class="day-row" id="d14" onclick="tog('d14')">
+      <div class="day-left"><div class="day-label">Qui 03/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Administração</span><span class="bdesc">Gestão de pessoas: motivação, liderança, poder</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-adm">Administração</span><span class="bdesc">Cultura e clima organizacional</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões gestão de pessoas</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d15" onclick="tog('d15')">
+      <div class="day-left"><div class="day-label">Sex 04/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Administração</span><span class="bdesc">Controle: indicadores, balanced scorecard</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-adm">Administração</span><span class="bdesc">Gestão por processos, qualidade total, PDCA</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões controle + qualidade</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d16" onclick="tog('d16')">
+      <div class="day-left"><div class="day-label">Sáb 05/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Administração</span><span class="bdesc">Planejamento estratégico: missão, visão, SWOT, BSC</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-adm">Licitações</span><span class="bdesc">Lei 14.133/2021: modalidades, fases, dispensa e inexigibilidade</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões planejamento + licitações</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d17" onclick="tog('d17')">
+      <div class="day-left"><div class="day-label">Dom 06/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-info">Informática</span><span class="bdesc">Internet, e-mail, segurança da informação, malwares</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-lei">Legislação</span><span class="bdesc">Revisão rápida Lei 11.091 + Lei 11.892</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões informática + legislação</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d18" onclick="tog('d18')">
+      <div class="day-left"><div class="day-label">Seg 07/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Adm Pública</span><span class="bdesc">Orçamento público: LOA, LDO, PPA — noções básicas</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-port">Português</span><span class="bdesc">Revisão: itens mais errados até agora</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões mistas todas as disciplinas</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d19" onclick="tog('d19')">
+      <div class="day-left"><div class="day-label">Ter 08/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Administração</span><span class="bdesc">Comunicação organizacional + tomada de decisão</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-info">Informática</span><span class="bdesc">Revisão: atalhos Office e segurança — pontos mais cobrados AOCP</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões administração + informática</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d20" onclick="tog('d20')">
+      <div class="day-left"><div class="day-label">Qua 09/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h30</span><div class="bright"><span class="btag tag-rev">Revisão</span><span class="bdesc">Caderno de erros acumulado das 3 semanas</span></div></div>
+        <div class="block"><span class="btime">20h30–22h</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">Simulado completo 40 questões estilo AOCP — cronometrado</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SEMANA 4 -->
+<div id="week3" class="week">
+  <div class="week-header">Semana 4 — Revisão profunda por disciplina</div>
+  <div class="week-focus">Foco: atacar os pontos fracos dos simulados. Uma disciplina por dia, máximo de questões AOCP.</div>
+  <div class="day-grid">
+
+    <div class="day-row" id="d21" onclick="tog('d21')">
+      <div class="day-left"><div class="day-label">Qui 10/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-port">Português</span><span class="bdesc">Revisão dos itens mais errados</span></div></div>
+        <div class="block"><span class="btime">20h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">40 questões Português — só banca AOCP</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d22" onclick="tog('d22')">
+      <div class="day-left"><div class="day-label">Sex 11/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-lei">Legislação</span><span class="bdesc">Artigos mais cobrados das 4 leis</span></div></div>
+        <div class="block"><span class="btime">20h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">40 questões Legislação — só banca AOCP</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d23" onclick="tog('d23')">
+      <div class="day-left"><div class="day-label">Sáb 12/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Administração</span><span class="bdesc">Revisão: funções, teorias, gestão de pessoas, estruturas</span></div></div>
+        <div class="block"><span class="btime">20h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">40 questões Conhecimentos Específicos AOCP</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d24" onclick="tog('d24')">
+      <div class="day-left"><div class="day-label">Dom 13/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-info">Informática</span><span class="bdesc">Revisão: atalhos, segurança, tudo que mais errou</span></div></div>
+        <div class="block"><span class="btime">20h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões informática AOCP</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d25" onclick="tog('d25')">
+      <div class="day-left"><div class="day-label">Seg 14/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–22h</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">Simulado completo estilo AOCP: 40 questões + análise de desempenho</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d26" onclick="tog('d26')">
+      <div class="day-left"><div class="day-label">Ter 15/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h30</span><div class="bright"><span class="btag tag-rev">Análise</span><span class="bdesc">Identificar padrão de erros do simulado — montar plano de correção</span></div></div>
+        <div class="block"><span class="btime">20h30–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">Questões focadas exatamente no que errou</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d27" onclick="tog('d27')">
+      <div class="day-left"><div class="day-label">Qua 16/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-lei">Legislação</span><span class="bdesc">Decreto 1.171 + pontos de ética mais cobrados</span></div></div>
+        <div class="block"><span class="btime">20h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões legislação mista (todas as 4 leis)</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SEMANA 5 -->
+<div id="week4" class="week">
+  <div class="week-header">Semana 5 — Intensivão de simulados</div>
+  <div class="week-focus">Foco: ritmo de prova real. Menos teoria, máximo de questões. Velocidade + precisão.</div>
+  <div class="day-grid">
+
+    <div class="day-row" id="d28" onclick="tog('d28')">
+      <div class="day-left"><div class="day-label">Qui 17/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–19h30</span><div class="bright"><span class="btag tag-rev">Flashcards</span><span class="bdesc">Leis + conceitos-chave de administração</span></div></div>
+        <div class="block"><span class="btime">19h30–22h</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">40 questões completas — cronometrado, condições reais</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d29" onclick="tog('d29')">
+      <div class="day-left"><div class="day-label">Sex 18/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-rev">Análise</span><span class="bdesc">Padrões de erro do simulado de quinta</span></div></div>
+        <div class="block"><span class="btime">20h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">Questões nos pontos errados</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d30" onclick="tog('d30')">
+      <div class="day-left"><div class="day-label">Sáb 19/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–21h30</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">Simulado completo estilo AOCP — condições de prova real</span></div></div>
+        <div class="block"><span class="btime">21h30–22h</span><div class="bright"><span class="btag tag-rev">Revisão</span><span class="bdesc">Gabarito e anotações rápidas</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d31" onclick="tog('d31')">
+      <div class="day-left"><div class="day-label">Dom 20/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-lei">Legislação</span><span class="bdesc">Revisão final: prazos, penalidades, artigos mais cobrados</span></div></div>
+        <div class="block"><span class="btime">20h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">50 questões Legislação — meta: 80% de acerto</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d32" onclick="tog('d32')">
+      <div class="day-left"><div class="day-label">Seg 21/04</div><div class="day-sub">feriado</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–22h</span><div class="bright"><span class="btag tag-rev">Revisão geral</span><span class="bdesc">Caderno de erros completo das 5 semanas — monte resumo final</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d33" onclick="tog('d33')">
+      <div class="day-left"><div class="day-label">Ter 22/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–19h30</span><div class="bright"><span class="btag tag-rev">Flashcards</span><span class="bdesc">Pontos que ainda erram mais</span></div></div>
+        <div class="block"><span class="btime">19h30–22h</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">40 questões cronometradas</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d34" onclick="tog('d34')">
+      <div class="day-left"><div class="day-label">Qua 23/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-rev">Análise</span><span class="bdesc">Evolução nos simulados da semana</span></div></div>
+        <div class="block"><span class="btime">20h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">Questões nos pontos ainda fracos</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SEMANA 6 -->
+<div id="week5" class="week">
+  <div class="week-header">Semana 6 — Semana final (24/04 → 03/05)</div>
+  <div class="week-focus">Foco: consolidar o que aprendeu. Sem conteúdo novo. Revisão leve + descanso estratégico.</div>
+  <div class="day-grid">
+
+    <div class="day-row" id="d35" onclick="tog('d35')">
+      <div class="day-left"><div class="day-label">Qui–Sex 24–25/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h30</span><div class="bright"><span class="btag tag-rev">Revisão leve</span><span class="bdesc">Legislação + Português — só o que domina menos</span></div></div>
+        <div class="block"><span class="btime">20h30–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões/noite — foco na confiança, sem pressão</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d36" onclick="tog('d36')">
+      <div class="day-left"><div class="day-label">Sáb 26/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–21h30</span><div class="bright"><span class="btag tag-sim">Simulado final</span><span class="bdesc">Último simulado completo — condições reais de prova</span></div></div>
+        <div class="block"><span class="btime">21h30–22h</span><div class="bright"><span class="btag tag-rev">Revisão</span><span class="bdesc">Gabarito e anotações finais</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d37" onclick="tog('d37')">
+      <div class="day-left"><div class="day-label">Dom–Ter 27–29/04</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h30</span><div class="bright"><span class="btag tag-rev">Flashcards</span><span class="bdesc">Só os temas mais cobrados — revisar o que já domina</span></div></div>
+        <div class="block"><span class="btime">20h30–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões fáceis — para entrar confiante na prova</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d38" onclick="tog('d38')">
+      <div class="day-left"><div class="day-label">Qua–Qui 30/04–01/05</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">Noite</span><div class="bright"><span class="btag tag-rev">Descanso</span><span class="bdesc">Nada de conteúdo novo. 30min de caderno de erros. Durma bem.</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row" id="d39" onclick="tog('d39')">
+      <div class="day-left"><div class="day-label">Sex 02/05</div><div class="check-area"><div class="check-box"><svg class="chk-icon" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">Noite</span><div class="bright"><span class="btag tag-rev">Véspera</span><span class="bdesc">Prepare documentos, separe material, durma cedo. Nada de estudar.</span></div></div>
+      </div>
+    </div>
+
+    <div class="day-row prova">
+      <div class="day-left">
+        <div class="day-label" style="color:var(--accent)">Sáb 03/05</div>
+        <div class="day-sub">dia da prova</div>
+      </div>
+      <div class="blocks">
+        <div class="block"><span class="btime">Manhã</span><div class="bright"><span class="btag tag-rev">Preparo</span><span class="bdesc">Café reforçado, saia cedo, leve documento e caneta</span></div></div>
+        <div class="block"><span class="btime">Prova</span><div class="bright"><span class="btag tag-sim">Prova objetiva</span><span class="bdesc">Período da manhã · Assistente em Administração · IFCE</span></div></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="tip-box">Na véspera, não tente estudar. O que você aprendeu em 6 semanas já está na memória. Dormir bem vale muito mais do que qualquer revisão de madrugada.</div>
+</div>
+
+<div class="footer">
+  cronograma baseado em provas reais AOCP/IFMA 2023 e AOCP/IFMS 2025 · iamanarielly · boa sorte 🤍
+  <button class="reset-btn" onclick="resetAll()">limpar checklist</button>
+</div>
+
+</div>
+<script>
+const TOTAL = 40;
+function tog(id) {
+  const el = document.getElementById(id);
+  if (!el || el.classList.contains('prova')) return;
+  el.classList.toggle('done');
+  save(); updateStats(); updateTabs();
+}
+function save() {
+  const done = [];
+  for (let i = 0; i < TOTAL; i++) { const el = document.getElementById('d'+i); if (el && el.classList.contains('done')) done.push(i); }
+  try { localStorage.setItem('ifce26', JSON.stringify(done)); } catch(e) {}
+}
+function load() {
+  try { const d = localStorage.getItem('ifce26'); if (!d) return; JSON.parse(d).forEach(i => { const el = document.getElementById('d'+i); if(el) el.classList.add('done'); }); } catch(e) {}
+}
+function updateStats() {
+  let c = 0;
+  for (let i = 0; i < TOTAL; i++) { const el = document.getElementById('d'+i); if (el && el.classList.contains('done')) c++; }
+  const pct = Math.round(c / TOTAL * 100);
+  const ds = document.getElementById('done-stat'); if(ds) ds.textContent = c;
+  const pp = document.getElementById('ppct'); if(pp) pp.textContent = pct + '%';
+  const pf = document.getElementById('pfill'); if(pf) pf.style.width = pct + '%';
+}
+const wr = [[0,6],[7,13],[14,20],[21,27],[28,34],[35,39]];
+function updateTabs() {
+  const tabs = document.querySelectorAll('.tab');
+  wr.forEach(([s,e], i) => {
+    let all = true;
+    for (let d = s; d <= e; d++) { const el = document.getElementById('d'+d); if (!el || !el.classList.contains('done')) { all = false; break; } }
+    if (tabs[i]) tabs[i].classList.toggle('week-done', all);
+  });
+}
+function showWeek(n) {
+  document.querySelectorAll('.week').forEach((w,i) => w.classList.toggle('active', i===n));
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===n));
+}
+function resetAll() {
+  if (!confirm('Limpar todo o progresso?')) return;
+  for (let i = 0; i < TOTAL; i++) { const el = document.getElementById('d'+i); if(el) el.classList.remove('done'); }
+  try { localStorage.removeItem('ifce26'); } catch(e) {}
+  updateStats(); updateTabs();
+}
+const diff = Math.max(0, Math.ceil((new Date('2026-05-03') - new Date()) / 86400000));
+['dtag','dstat'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = diff; });
+load(); updateStats(); updateTabs();
+</script>
+</body>
+</html>

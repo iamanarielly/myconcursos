@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meu Espaço de Estudos</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="my-notion-face-transparent.png">
+<style>
+:root {
+  --bg: #0f0f11;
+  --surface: #18181c;
+  --surface2: #202026;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #e8e8ec;
+  --muted: #6b6b78;
+  --accent: #7c6ff7;
+  --accent-dim: rgba(124,111,247,0.12);
+  --green: #52c97a;
+  --green-dim: rgba(82,201,122,0.1);
+  --amber: #f5a623;
+  --amber-dim: rgba(245,166,35,0.1);
+  --red: #f76b6b;
+  --red-dim: rgba(247,107,107,0.1);
+  --blue: #4f8ef7;
+  --blue-dim: rgba(79,142,247,0.1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+/* ── Nav ── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(15,15,17,0.85); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 1.5rem; height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-logo { display: flex; align-items: center; gap: 10px; }
+.nav-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--accent-dim); border: 1px solid var(--accent); display: flex; align-items: center; justify-content: center; font-size: 14px; overflow: hidden; }
+.nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.nav-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.nav-links { display: flex; gap: 4px; }
+.nav-link { font-size: 12px; color: var(--muted); padding: 5px 10px; border-radius: 6px; cursor: pointer; text-decoration: none; transition: all .15s; font-family: 'DM Mono', monospace; }
+.nav-link:hover { color: var(--text); background: var(--surface2); }
+.nav-link.active { color: var(--text); background: var(--surface2); }
+
+/* ── Layout ── */
+.container { max-width: 900px; margin: 0 auto; padding: 2rem 1rem 5rem; }
+
+/* ── Sections ── */
+.section { display: none; }
+.section.active { display: block; }
+
+/* ── Hero ── */
+.hero { margin-bottom: 2.5rem; }
+.hero-greeting { font-size: 13px; color: var(--muted); font-family: 'DM Mono', monospace; margin-bottom: 8px; }
+.hero-greeting span { color: var(--accent); }
+.hero-title { font-size: clamp(24px, 5vw, 36px); font-weight: 300; letter-spacing: -.02em; line-height: 1.2; margin-bottom: 8px; }
+.hero-title strong { font-weight: 500; }
+.hero-sub { font-size: 14px; color: var(--muted); }
+
+/* ── Stats grid ── */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap: 8px; margin: 1.5rem 0 2rem; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+.stat-val { font-size: 24px; font-weight: 500; font-family: 'DM Mono', monospace; letter-spacing: -.02em; }
+.stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.stat.green .stat-val { color: var(--green); }
+.stat.amber .stat-val { color: var(--amber); }
+.stat.purple .stat-val { color: var(--accent); }
+.stat.blue .stat-val { color: var(--blue); }
+
+/* ── Section title ── */
+.sec-title { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .75rem; display: flex; align-items: center; justify-content: space-between; }
+.sec-add { font-size: 11px; color: var(--accent); background: var(--accent-dim); padding: 3px 10px; border-radius: 20px; cursor: pointer; border: none; font-family: 'DM Mono', monospace; }
+.sec-add:hover { opacity: .8; }
+
+/* ── Concursos cards ── */
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 10px; margin-bottom: 2rem; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; cursor: pointer; transition: border-color .15s, transform .1s; text-decoration: none; display: block; }
+.card:hover { border-color: var(--border2); transform: translateY(-1px); }
+.card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+.card-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.card-badge { font-size: 10px; font-weight: 500; padding: 3px 8px; border-radius: 20px; }
+.badge-active { background: var(--green-dim); color: var(--green); }
+.badge-prep   { background: var(--accent-dim); color: var(--accent); }
+.badge-closed { background: var(--surface2); color: var(--muted); }
+.badge-open   { background: var(--amber-dim); color: var(--amber); }
+.card-name { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+.card-sub  { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+.card-progress { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin-bottom: 6px; }
+.card-progress-fill { height: 100%; border-radius: 2px; transition: width .4s; }
+.card-progress-label { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; display: flex; justify-content: space-between; }
+.card-date { font-size: 11px; color: var(--muted); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; }
+.card-date span { color: var(--text); }
+
+/* ── Concursos abertos ── */
+.concursos-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 2rem; }
+.concurso-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+.concurso-nome { font-size: 13px; font-weight: 500; color: var(--text); }
+.concurso-info { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.concurso-prazo { text-align: right; }
+.concurso-prazo-val { font-size: 12px; font-family: 'DM Mono', monospace; }
+.prazo-urgente { color: var(--red); }
+.prazo-normal  { color: var(--amber); }
+.prazo-ok      { color: var(--green); }
+.concurso-prazo-label { font-size: 10px; color: var(--muted); }
+
+/* ── Notas ── */
+.notas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 10px; margin-bottom: 2rem; }
+.nota-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; min-height: 140px; display: flex; flex-direction: column; }
+.nota-tag { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px; margin-bottom: 10px; align-self: flex-start; }
+.nota-titulo { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
+.nota-texto { font-size: 12px; color: var(--muted); line-height: 1.6; flex: 1; }
+.nota-data { font-size: 10px; color: var(--muted); margin-top: 10px; font-family: 'DM Mono', monospace; }
+
+/* ── Empty state ── */
+.empty { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+.empty-icon { font-size: 32px; margin-bottom: 12px; }
+.empty-text { font-size: 13px; }
+
+/* ── Modal ── */
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
+.modal-bg.open { display: flex; }
+.modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 14px; padding: 1.5rem; width: 100%; max-width: 440px; }
+.modal-title { font-size: 16px; font-weight: 500; margin-bottom: 1.25rem; }
+.modal label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 4px; margin-top: 12px; }
+.modal input, .modal select, .modal textarea {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 8px 12px; font-size: 13px; color: var(--text);
+  font-family: 'DM Sans', sans-serif; outline: none;
+}
+.modal textarea { resize: vertical; min-height: 80px; }
+.modal input:focus, .modal select:focus, .modal textarea:focus { border-color: var(--accent); }
+.modal select option { background: var(--surface2); }
+.modal-btns { display: flex; gap: 8px; margin-top: 1.25rem; justify-content: flex-end; }
+.btn-cancel { background: transparent; border: 1px solid var(--border2); color: var(--muted); font-size: 13px; padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+.btn-save { background: var(--accent); border: none; color: white; font-size: 13px; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 500; }
+.btn-cancel:hover { color: var(--text); }
+.btn-save:hover { opacity: .9; }
+
+/* ── Footer ── */
+footer { text-align: center; font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; padding: 2rem 0 1rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <div class="nav-avatar"><img src="my-notion-face-transparent.png" onerror="this.style.display='none';this.parentElement.textContent='📚'"></div>
+    <span class="nav-name">Meu espaço de estudos</span>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link active" onclick="showSection('inicio')">início</a>
+    <a class="nav-link" onclick="showSection('cronogramas')">cronogramas</a>
+    <a class="nav-link" onclick="showSection('concursos')">concursos</a>
+    <a class="nav-link" onclick="showSection('notas')">notas</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- ══ INÍCIO ══ -->
+  <div id="sec-inicio" class="section active">
+    <div class="hero">
+      <div class="hero-greeting">olá, <span id="greeting-name">iamanarielly</span> · <span id="greeting-time"></span></div>
+      <div class="hero-title">Seu <strong>espaço de estudos</strong><br>para concursos públicos</div>
+      <div class="hero-sub">Tudo em um lugar — cronogramas, anotações e concursos abertos.</div>
+    </div>
+
+    <div class="stats">
+      <div class="stat purple"><div class="stat-val" id="st-cronogramas">1</div><div class="stat-label">cronogramas ativos</div></div>
+      <div class="stat amber"><div class="stat-val" id="st-dias">45</div><div class="stat-label">dias para próxima prova</div></div>
+      <div class="stat green"><div class="stat-val" id="st-progresso">0%</div><div class="stat-label">progresso IFCE</div></div>
+      <div class="stat blue"><div class="stat-val" id="st-notas">0</div><div class="stat-label">anotações salvas</div></div>
+    </div>
+
+    <div class="sec-title">cronogramas ativos</div>
+    <div class="cards" id="cards-inicio"></div>
+
+    <div class="sec-title">concursos com inscrições abertas</div>
+    <div class="concursos-list" id="concursos-inicio"></div>
+  </div>
+
+  <!-- ══ CRONOGRAMAS ══ -->
+  <div id="sec-cronogramas" class="section">
+    <div class="sec-title">
+      cronogramas
+      <button class="sec-add" onclick="openModal('concurso')">+ adicionar</button>
+    </div>
+    <div class="cards" id="cards-cronogramas"></div>
+  </div>
+
+  <!-- ══ CONCURSOS ══ -->
+  <div id="sec-concursos" class="section">
+    <div class="sec-title">
+      concursos abertos
+      <button class="sec-add" onclick="openModal('concurso-aberto')">+ adicionar</button>
+    </div>
+    <div class="concursos-list" id="lista-concursos"></div>
+  </div>
+
+  <!-- ══ NOTAS ══ -->
+  <div id="sec-notas" class="section">
+    <div class="sec-title">
+      anotações e resumos
+      <button class="sec-add" onclick="openModal('nota')">+ nova nota</button>
+    </div>
+    <div class="notas-grid" id="grid-notas"></div>
+  </div>
+
+</div>
+
+<!-- ══ MODAL ADICIONAR CONCURSO/CRONOGRAMA ══ -->
+<div class="modal-bg" id="modal-bg" onclick="closeModalBg(event)">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Adicionar cronograma</div>
+
+    <div id="form-concurso">
+      <label>Nome do concurso / cargo</label>
+      <input id="f-nome" placeholder="Ex: IFCE — Assistente em Administração">
+      <label>Órgão</label>
+      <input id="f-orgao" placeholder="Ex: IFCE">
+      <label>Data da prova</label>
+      <input id="f-data" type="date">
+      <label>Link do cronograma (URL da página)</label>
+      <input id="f-link" placeholder="Ex: cronograma_ifce.html">
+      <label>Status</label>
+      <select id="f-status">
+        <option value="prep">Em preparação</option>
+        <option value="active">Ativo</option>
+        <option value="closed">Encerrado</option>
+      </select>
+    </div>
+
+    <div id="form-concurso-aberto" style="display:none">
+      <label>Nome do concurso</label>
+      <input id="fa-nome" placeholder="Ex: Prefeitura de Fortaleza">
+      <label>Cargo</label>
+      <input id="fa-cargo" placeholder="Ex: Agente Administrativo">
+      <label>Banca</label>
+      <input id="fa-banca" placeholder="Ex: AOCP, CEBRASPE...">
+      <label>Prazo de inscrição</label>
+      <input id="fa-prazo" type="date">
+      <label>Link do edital</label>
+      <input id="fa-link" placeholder="https://...">
+    </div>
+
+    <div id="form-nota" style="display:none">
+      <label>Título</label>
+      <input id="fn-titulo" placeholder="Ex: Resumo Lei 8.112">
+      <label>Disciplina</label>
+      <select id="fn-tag">
+        <option value="lei">Legislação</option>
+        <option value="port">Português</option>
+        <option value="adm">Administração</option>
+        <option value="info">Informática</option>
+        <option value="geral">Geral</option>
+      </select>
+      <label>Conteúdo</label>
+      <textarea id="fn-texto" placeholder="Suas anotações aqui..."></textarea>
+    </div>
+
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" onclick="salvar()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<footer>iamanarielly · espaço de estudos · feito com 🤍</footer>
+
+<script>
+// ══════════════════════════════════════
+//  ESTADO
+// ══════════════════════════════════════
+let state = {
+  cronogramas: [
+    {
+      id: 'ifce2026',
+      nome: 'Assistente em Administração',
+      orgao: 'IFCE',
+      data: '2026-05-03',
+      link: 'cronograma_ifce_assistente_adm.html',
+      status: 'active',
+      cor: '#7c6ff7',
+      icone: '📋',
+      progresso: 0
+    }
+  ],
+  concursos: [
+    {
+      id: 'ifce26',
+      nome: 'IFCE — Concurso TAE 2026',
+      cargo: 'Assistente em Administração',
+      banca: 'AOCP',
+      prazo: '2026-03-20',
+      link: 'https://www.institutoaocp.org.br'
+    }
+  ],
+  notas: []
+};
+
+const TAG_COLORS = {
+  lei:  { bg: 'rgba(247,107,107,0.1)', color: '#f76b6b' },
+  port: { bg: 'rgba(79,142,247,0.1)',  color: '#4f8ef7' },
+  adm:  { bg: 'rgba(82,201,122,0.1)',  color: '#52c97a' },
+  info: { bg: 'rgba(245,166,35,0.1)',  color: '#f5a623' },
+  geral:{ bg: 'rgba(138,138,150,0.1)', color: '#8a8a96' },
+};
+const TAG_NAMES = { lei:'Legislação', port:'Português', adm:'Administração', info:'Informática', geral:'Geral' };
+const STATUS_LABEL = { active:'Ativo', prep:'Em preparação', closed:'Encerrado' };
+const STATUS_CLASS = { active:'badge-active', prep:'badge-prep', closed:'badge-closed' };
+const COR_OPTIONS = ['#7c6ff7','#52c97a','#f5a623','#f76b6b','#4f8ef7','#ff7b54'];
+
+// ══════════════════════════════════════
+//  PERSISTÊNCIA
+// ══════════════════════════════════════
+function saveState() {
+  try { localStorage.setItem('estudos_hub', JSON.stringify(state)); } catch(e) {}
+}
+function loadState() {
+  try {
+    const d = localStorage.getItem('estudos_hub');
+    if (d) {
+      const parsed = JSON.parse(d);
+      // Mescla preservando o cronograma padrão do IFCE
+      if (parsed.cronogramas) state.cronogramas = parsed.cronogramas;
+      if (parsed.concursos)   state.concursos   = parsed.concursos;
+      if (parsed.notas)       state.notas        = parsed.notas;
+    }
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════
+//  NAVEGAÇÃO
+// ══════════════════════════════════════
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l => { if (l.getAttribute('onclick')?.includes(id)) l.classList.add('active'); });
+  render();
+}
+
+// ══════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════
+function render() {
+  renderCards();
+  renderConcursos();
+  renderNotas();
+  renderStats();
+}
+
+function diasRestantes(dataStr) {
+  if (!dataStr) return null;
+  const diff = Math.ceil((new Date(dataStr) - new Date()) / 86400000);
+  return diff;
+}
+
+function renderCards() {
+  const containers = ['cards-inicio', 'cards-cronogramas'];
+  containers.forEach(cid => {
+    const el = document.getElementById(cid);
+    if (!el) return;
+    if (state.cronogramas.length === 0) {
+      el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Nenhum cronograma ainda.<br>Adicione seu primeiro!</div></div>';
+      return;
+    }
+    el.innerHTML = state.cronogramas.map(c => {
+      const dias = diasRestantes(c.data);
+      const diasStr = dias !== null ? (dias > 0 ? `${dias} dias` : 'Prova hoje!') : '—';
+      const dataFmt = c.data ? new Date(c.data + 'T12:00:00').toLocaleDateString('pt-BR') : '—';
+      const prog = c.progresso || 0;
+      return `
+        <a class="card" href="${c.link || '#'}" ${c.link && c.link.startsWith('http') ? 'target="_blank"' : ''}>
+          <div class="card-top">
+            <div class="card-icon" style="background:${c.cor}22">${c.icone || '📋'}</div>
+            <span class="card-badge ${STATUS_CLASS[c.status] || 'badge-prep'}">${STATUS_LABEL[c.status] || c.status}</span>
+          </div>
+          <div class="card-name">${c.nome}</div>
+          <div class="card-sub">${c.orgao}</div>
+          <div class="card-progress"><div class="card-progress-fill" style="width:${prog}%;background:${c.cor}"></div></div>
+          <div class="card-progress-label"><span>progresso</span><span>${prog}%</span></div>
+          <div class="card-date"><span>prova</span><span>${dataFmt} · ${diasStr}</span></div>
+        </a>`;
+    }).join('');
+  });
+}
+
+function renderConcursos() {
+  const containers = ['concursos-inicio', 'lista-concursos'];
+  containers.forEach(cid => {
+    const el = document.getElementById(cid);
+    if (!el) return;
+    if (state.concursos.length === 0) {
+      el.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">Nenhum concurso cadastrado.</div></div>';
+      return;
+    }
+    el.innerHTML = state.concursos.map(c => {
+      const dias = diasRestantes(c.prazo);
+      let cls = 'prazo-ok', label = `${dias} dias`;
+      if (dias === null) { cls = 'prazo-normal'; label = '—'; }
+      else if (dias < 0) { cls = 'prazo-normal'; label = 'Encerrado'; }
+      else if (dias <= 3) { cls = 'prazo-urgente'; label = `${dias}d ⚠️`; }
+      else if (dias <= 7) { cls = 'prazo-normal'; label = `${dias} dias`; }
+      return `
+        <div class="concurso-row">
+          <div>
+            <div class="concurso-nome">${c.nome}</div>
+            <div class="concurso-info">${c.cargo} · ${c.banca}${c.link ? ` · <a href="${c.link}" target="_blank" style="color:var(--accent);text-decoration:none">edital ↗</a>` : ''}</div>
+          </div>
+          <div class="concurso-prazo">
+            <div class="concurso-prazo-val ${cls}">${label}</div>
+            <div class="concurso-prazo-label">inscrição</div>
+          </div>
+        </div>`;
+    }).join('');
+  });
+}
+
+function renderNotas() {
+  const el = document.getElementById('grid-notas');
+  if (!el) return;
+  const stN = document.getElementById('st-notas');
+  if (stN) stN.textContent = state.notas.length;
+  if (state.notas.length === 0) {
+    el.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📝</div><div class="empty-text">Nenhuma anotação ainda.<br>Registre seus resumos aqui!</div></div>';
+    return;
+  }
+  el.innerHTML = state.notas.map(n => {
+    const tc = TAG_COLORS[n.tag] || TAG_COLORS.geral;
+    return `
+      <div class="nota-card">
+        <span class="nota-tag" style="background:${tc.bg};color:${tc.color}">${TAG_NAMES[n.tag] || n.tag}</span>
+        <div class="nota-titulo">${n.titulo}</div>
+        <div class="nota-texto">${n.texto}</div>
+        <div class="nota-data">${n.data}</div>
+      </div>`;
+  }).join('');
+}
+
+function renderStats() {
+  const dias = diasRestantes('2026-05-03');
+  const dEl = document.getElementById('st-dias');
+  if (dEl) dEl.textContent = dias > 0 ? dias : 0;
+  const cEl = document.getElementById('st-cronogramas');
+  if (cEl) cEl.textContent = state.cronogramas.filter(c => c.status === 'active').length;
+  // Progresso IFCE do checklist
+  try {
+    const done = JSON.parse(localStorage.getItem('ifce26') || '[]');
+    const pct = Math.round(done.length / 40 * 100);
+    const pEl = document.getElementById('st-progresso');
+    if (pEl) pEl.textContent = pct + '%';
+    // Atualizar progresso no card
+    const c = state.cronogramas.find(x => x.id === 'ifce2026');
+    if (c) { c.progresso = pct; }
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════
+let modalType = 'concurso';
+function openModal(type) {
+  modalType = type;
+  document.getElementById('modal-bg').classList.add('open');
+  document.getElementById('form-concurso').style.display = type === 'concurso' ? 'block' : 'none';
+  document.getElementById('form-concurso-aberto').style.display = type === 'concurso-aberto' ? 'block' : 'none';
+  document.getElementById('form-nota').style.display = type === 'nota' ? 'block' : 'none';
+  const titles = { concurso:'Adicionar cronograma', 'concurso-aberto':'Adicionar concurso aberto', nota:'Nova anotação' };
+  document.getElementById('modal-title').textContent = titles[type];
+}
+function closeModal() { document.getElementById('modal-bg').classList.remove('open'); }
+function closeModalBg(e) { if (e.target === document.getElementById('modal-bg')) closeModal(); }
+
+function salvar() {
+  if (modalType === 'concurso') {
+    const nome = document.getElementById('f-nome').value.trim();
+    if (!nome) return;
+    const cor = COR_OPTIONS[state.cronogramas.length % COR_OPTIONS.length];
+    state.cronogramas.push({
+      id: 'c' + Date.now(),
+      nome,
+      orgao: document.getElementById('f-orgao').value.trim(),
+      data: document.getElementById('f-data').value,
+      link: document.getElementById('f-link').value.trim(),
+      status: document.getElementById('f-status').value,
+      cor, icone: '📋', progresso: 0
+    });
+    document.getElementById('f-nome').value = '';
+    document.getElementById('f-orgao').value = '';
+    document.getElementById('f-data').value = '';
+    document.getElementById('f-link').value = '';
+  } else if (modalType === 'concurso-aberto') {
+    const nome = document.getElementById('fa-nome').value.trim();
+    if (!nome) return;
+    state.concursos.push({
+      id: 'ca' + Date.now(),
+      nome,
+      cargo: document.getElementById('fa-cargo').value.trim(),
+      banca: document.getElementById('fa-banca').value.trim(),
+      prazo: document.getElementById('fa-prazo').value,
+      link: document.getElementById('fa-link').value.trim()
+    });
+    document.getElementById('fa-nome').value = '';
+    document.getElementById('fa-cargo').value = '';
+    document.getElementById('fa-banca').value = '';
+    document.getElementById('fa-prazo').value = '';
+    document.getElementById('fa-link').value = '';
+  } else if (modalType === 'nota') {
+    const titulo = document.getElementById('fn-titulo').value.trim();
+    const texto = document.getElementById('fn-texto').value.trim();
+    if (!titulo) return;
+    state.notas.unshift({
+      id: 'n' + Date.now(),
+      titulo,
+      tag: document.getElementById('fn-tag').value,
+      texto,
+      data: new Date().toLocaleDateString('pt-BR')
+    });
+    document.getElementById('fn-titulo').value = '';
+    document.getElementById('fn-texto').value = '';
+  }
+  saveState();
+  closeModal();
+  render();
+}
+
+// ══════════════════════════════════════
+//  SAUDAÇÃO
+// ══════════════════════════════════════
+function greeting() {
+  const h = new Date().getHours();
+  const s = h < 12 ? 'bom dia' : h < 18 ? 'boa tarde' : 'boa noite';
+  const el = document.getElementById('greeting-time');
+  if (el) el.textContent = s + ' ☀️'.replace('☀️', h >= 18 ? '🌙' : '☀️');
+}
+
+// ══════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════
+loadState();
+greeting();
+render();
+</script>
+</body>
+</html>

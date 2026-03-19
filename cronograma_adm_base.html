@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base Administrativa · Concursos Nível Médio</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="my-notion-face-transparent.png">
+<style>
+:root {
+  --bg:#0f0f11;--surface:#18181c;--surface2:#202026;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#e8e8ec;--muted:#6b6b78;
+  --accent:#7c6ff7;--accent-dim:rgba(124,111,247,0.12);
+  --adm:#52c97a;--adm-bg:rgba(82,201,122,0.1);
+  --pub:#4f8ef7;--pub-bg:rgba(79,142,247,0.1);
+  --pes:#f5a623;--pes-bg:rgba(245,166,35,0.1);
+  --lic:#f76b6b;--lic-bg:rgba(247,107,107,0.1);
+  --org:#b57bee;--org-bg:rgba(181,123,238,0.1);
+  --proc:#2dcbad;--proc-bg:rgba(45,203,173,0.1);
+  --rev:rgba(138,138,150,0.12);--rev-c:#8a8a96;
+  --sim-bg:rgba(255,123,84,0.1);--sim-c:#ff7b54;
+  --done-bg:rgba(82,201,122,0.05);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:2rem 1rem 5rem;}
+.container{max-width:860px;margin:0 auto;}
+
+.back{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;text-decoration:none;margin-bottom:1.5rem;transition:color .15s;}
+.back:hover{color:var(--text);}
+
+.badge{display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.08em;color:var(--adm);background:var(--adm-bg);padding:4px 12px;border-radius:20px;margin-bottom:.75rem;}
+h1{font-size:clamp(20px,5vw,28px);font-weight:300;letter-spacing:-.02em;margin-bottom:4px;}
+h1 strong{font-weight:500;}
+.subtitle{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:1.5rem;}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:1.75rem;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+.stat-val{font-size:20px;font-weight:500;font-family:'DM Mono',monospace;}
+.stat-label{font-size:11px;color:var(--muted);margin-top:2px;}
+
+.prog-wrap{margin-bottom:1.75rem;}
+.prog-header{display:flex;justify-content:space-between;margin-bottom:6px;}
+.prog-label{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;}
+.prog-bar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--adm),var(--proc));border-radius:3px;transition:width .4s;}
+
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.5rem;}
+.leg{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);}
+.leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+
+.tabs{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:1.5rem;overflow-x:auto;}
+.tab{flex:1;min-width:90px;padding:7px 8px;font-size:11px;font-family:'DM Mono',monospace;font-weight:500;text-align:center;border-radius:7px;border:none;cursor:pointer;background:transparent;color:var(--muted);transition:all .15s;white-space:nowrap;}
+.tab:hover{color:var(--text);background:var(--surface2);}
+.tab.active{background:var(--surface2);color:var(--text);border:1px solid var(--border2);}
+.tab .wc{display:none;margin-left:3px;color:var(--adm);font-size:10px;}
+.tab.done .wc{display:inline;}
+
+.bloco{display:none;}
+.bloco.active{display:block;}
+.bloco-header{font-size:16px;font-weight:500;margin-bottom:4px;}
+.bloco-desc{font-size:12px;color:var(--muted);margin-bottom:.75rem;padding-left:12px;border-left:2px solid var(--accent);line-height:1.5;}
+
+.callout{padding:10px 14px;border-radius:8px;font-size:12px;line-height:1.6;margin-bottom:10px;}
+.c-info{background:var(--pub-bg);color:var(--pub);border:0.5px solid rgba(79,142,247,0.25);}
+.c-tip{background:var(--adm-bg);color:var(--adm);border:0.5px solid rgba(82,201,122,0.25);}
+.c-warn{background:var(--lic-bg);color:var(--lic);border:0.5px solid rgba(247,107,107,0.25);}
+
+.grid{display:flex;flex-direction:column;gap:6px;}
+.row{display:grid;grid-template-columns:108px 1fr;gap:12px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;transition:border-color .15s,background .2s;cursor:pointer;}
+.row:hover{border-color:var(--border2);}
+.row.done{background:var(--done-bg);border-color:rgba(82,201,122,0.2);}
+
+.rleft{display:flex;flex-direction:column;gap:3px;}
+.rlabel{font-size:13px;font-weight:500;}
+.rsub{font-size:11px;color:var(--muted);}
+.chk-area{display:flex;align-items:center;gap:5px;margin-top:6px;}
+.chk-box{width:16px;height:16px;border-radius:4px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.done .chk-box{background:var(--adm);border-color:var(--adm);}
+.chk-lbl{font-size:11px;color:var(--muted);}
+.done .chk-lbl{color:var(--adm);}
+.chk-i{display:none;}
+.done .chk-i{display:block;}
+
+.blocks{display:flex;flex-direction:column;gap:5px;}
+.block{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;}
+.btime{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;min-width:82px;padding-top:2px;}
+.bright{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.btag{font-size:11px;font-weight:500;padding:2px 9px;border-radius:20px;white-space:nowrap;}
+.bdesc{font-size:12px;color:var(--muted);}
+
+.tag-adm{background:var(--adm-bg);color:var(--adm);}
+.tag-pub{background:var(--pub-bg);color:var(--pub);}
+.tag-pes{background:var(--pes-bg);color:var(--pes);}
+.tag-lic{background:var(--lic-bg);color:var(--lic);}
+.tag-org{background:var(--org-bg);color:var(--org);}
+.tag-proc{background:var(--proc-bg);color:var(--proc);}
+.tag-rev{background:var(--rev);color:var(--rev-c);}
+.tag-sim{background:var(--sim-bg);color:var(--sim-c);}
+
+.note{margin-top:10px;font-size:12px;color:var(--accent);background:var(--accent-dim);border-radius:8px;padding:10px 14px;font-family:'DM Mono',monospace;}
+.tip{margin-top:10px;font-size:12px;color:var(--muted);border-left:2px solid var(--sim-c);padding-left:12px;line-height:1.7;}
+
+.peso-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:1.5rem;}
+.peso-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+.peso-nome{font-size:13px;font-weight:500;margin-bottom:6px;}
+.peso-bar-wrap{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-bottom:4px;}
+.peso-bar{height:100%;border-radius:3px;}
+.peso-info{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+
+.reset-btn{background:transparent;border:0.5px solid var(--border2);color:var(--muted);font-size:11px;font-family:'DM Mono',monospace;padding:5px 12px;border-radius:20px;cursor:pointer;margin-top:1.5rem;}
+.reset-btn:hover{color:var(--text);}
+footer{text-align:center;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);}
+</style>
+</head>
+<body>
+<div class="container">
+
+<a class="back" href="index.html">← voltar ao hub</a>
+
+<div class="badge">🃏 base administrativa · contínuo</div>
+<h1><strong>Administração</strong> para todos os concursos</h1>
+<div class="subtitle">Conteúdos comuns · Nível médio · Prefeituras CE · Concursos estaduais · IFs</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val" style="color:var(--adm)">6</div><div class="stat-label">blocos temáticos</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--pub)">28</div><div class="stat-label">dias de conteúdo</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--proc)" id="done-stat">0</div><div class="stat-label">dias concluídos</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--pes)" id="pct-stat">0%</div><div class="stat-label">progresso</div></div>
+</div>
+
+<div class="prog-wrap">
+  <div class="prog-header"><span class="prog-label">progresso geral</span><span class="prog-label" id="prog-pct">0%</span></div>
+  <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+</div>
+
+<div class="legend">
+  <span class="leg"><span class="leg-dot" style="background:var(--adm)"></span>Adm. Geral</span>
+  <span class="leg"><span class="leg-dot" style="background:var(--pub)"></span>Adm. Pública</span>
+  <span class="leg"><span class="leg-dot" style="background:var(--pes)"></span>Gestão de Pessoas</span>
+  <span class="leg"><span class="leg-dot" style="background:var(--lic)"></span>Licitações</span>
+  <span class="leg"><span class="leg-dot" style="background:var(--org)"></span>Org. Administrativa</span>
+  <span class="leg"><span class="leg-dot" style="background:var(--proc)"></span>Processos/Qualidade</span>
+</div>
+
+<!-- Peso por banca -->
+<div style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem;">peso real por tipo de concurso</div>
+<div class="peso-grid">
+  <div class="peso-card">
+    <div class="peso-nome">🏛️ Institutos Federais (AOCP)</div>
+    <div class="peso-bar-wrap"><div class="peso-bar" style="width:100%;background:var(--adm)"></div></div>
+    <div class="peso-info">15 questões · Adm Geral + Pública + Licitações</div>
+  </div>
+  <div class="peso-card">
+    <div class="peso-nome">🏙️ Prefeituras CE (várias bancas)</div>
+    <div class="peso-bar-wrap"><div class="peso-bar" style="width:70%;background:var(--pub)"></div></div>
+    <div class="peso-info">8–12 questões · Adm Pública + Gestão Pessoas</div>
+  </div>
+  <div class="peso-card">
+    <div class="peso-nome">⚖️ TJ CE / TCE CE (FCC)</div>
+    <div class="peso-bar-wrap"><div class="peso-bar" style="width:80%;background:var(--lic)"></div></div>
+    <div class="peso-info">10–15 questões · Adm Pública + Licitações + Org.</div>
+  </div>
+  <div class="peso-card">
+    <div class="peso-nome">🏢 Conselhos (AOCP/Consulplan)</div>
+    <div class="peso-bar-wrap"><div class="peso-bar" style="width:60%;background:var(--org)"></div></div>
+    <div class="peso-info">6–10 questões · Adm Geral + Gestão Pessoas</div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab active" onclick="showBloco(0)">B1 · Adm Geral<span class="wc">✓</span></button>
+  <button class="tab" onclick="showBloco(1)">B2 · Adm Pública<span class="wc">✓</span></button>
+  <button class="tab" onclick="showBloco(2)">B3 · Gestão Pessoas<span class="wc">✓</span></button>
+  <button class="tab" onclick="showBloco(3)">B4 · Org + Processos<span class="wc">✓</span></button>
+  <button class="tab" onclick="showBloco(4)">B5 · Licitações<span class="wc">✓</span></button>
+  <button class="tab" onclick="showBloco(5)">B6 · Revisão<span class="wc">✓</span></button>
+</div>
+
+<!-- ══ BLOCO 1 — ADMINISTRAÇÃO GERAL ══ -->
+<div id="bloco0" class="bloco active">
+  <div class="bloco-header">Bloco 1 — Administração Geral</div>
+  <div class="bloco-desc">Base de tudo. Aparece em 100% dos concursos administrativos de nível médio. Sem isso não existe o resto.</div>
+  <div class="callout c-info">📊 <strong>Fontes reais:</strong> Cebraspe, AOCP, FCC e FGV cobram PODC, teorias clássicas e estruturas organizacionais em quase todos os concursos de cargo administrativo nível médio.</div>
+
+  <div class="grid">
+
+    <div class="row" id="d0" onclick="tog('d0')">
+      <div class="rleft"><div class="rlabel">Dia 1</div><div class="rsub">funções PODC</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Adm Geral</span><span class="bdesc">Planejamento: conceito, tipos (estratégico, tático, operacional), etapas</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-adm">Adm Geral</span><span class="bdesc">Organização, Direção e Controle: conceitos, ferramentas e indicadores</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões funções administrativas — varie AOCP, FCC, Cebraspe</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d1" onclick="tog('d1')">
+      <div class="rleft"><div class="rlabel">Dia 2</div><div class="rsub">teorias clássicas</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Adm Geral</span><span class="bdesc">Taylor (Científica) e Fayol (Clássica): princípios, críticas, diferenças</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-adm">Adm Geral</span><span class="bdesc">Weber (Burocrática): características, disfunções + Teoria Sistêmica</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões teorias da administração</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d2" onclick="tog('d2')">
+      <div class="rleft"><div class="rlabel">Dia 3</div><div class="rsub">teorias modernas</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Adm Geral</span><span class="bdesc">Teoria das Relações Humanas: Elton Mayo, experimento Hawthorne</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-adm">Adm Geral</span><span class="bdesc">Teoria Contingencial, Teoria dos Sistemas, Abordagem Neoclássica</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões teorias modernas</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d3" onclick="tog('d3')">
+      <div class="rleft"><div class="rlabel">Dia 4</div><div class="rsub">planejamento estratégico</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Adm Geral</span><span class="bdesc">Missão, visão, valores, objetivos estratégicos. Análise SWOT.</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-adm">Adm Geral</span><span class="bdesc">BSC (Balanced Scorecard): perspectivas, indicadores e metas</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões planejamento estratégico</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d4" onclick="tog('d4')">
+      <div class="rleft"><div class="rlabel">Dia 5</div><div class="rsub">simulado adm geral</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h30</span><div class="bright"><span class="btag tag-rev">Revisão</span><span class="bdesc">Caderno de erros dos 4 dias + mapa mental das teorias</span></div></div>
+        <div class="block"><span class="btime">20h30–22h</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">30 questões Adm Geral cronometradas — meta: 70% acerto</span></div></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="note">Dica AOCP: cobra muito Taylor vs Fayol e as disfunções da burocracia de Weber. Estude as diferenças com exemplos práticos.</div>
+</div>
+
+<!-- ══ BLOCO 2 — ADMINISTRAÇÃO PÚBLICA ══ -->
+<div id="bloco1" class="bloco">
+  <div class="bloco-header">Bloco 2 — Administração Pública</div>
+  <div class="bloco-desc">Essencial para IFs, TJ CE, TCE CE, prefeituras e conselhos. Cobrado com profundidade crescente conforme o órgão.</div>
+  <div class="callout c-info">📊 <strong>Fontes reais:</strong> FCC (TJ CE) e Cebraspe cobram organização administrativa com profundidade. AOCP e bancas de prefeitura cobram LIMPE e modelos de gestão pública com mais frequência.</div>
+
+  <div class="grid">
+
+    <div class="row" id="d5" onclick="tog('d5')">
+      <div class="rleft"><div class="rlabel">Dia 6</div><div class="rsub">princípios LIMPE</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-pub">Adm Pública</span><span class="bdesc">CF/88 Art. 37: princípios LIMPE — conceito, aplicação e pegadinhas</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-pub">Adm Pública</span><span class="bdesc">Princípios implícitos: razoabilidade, proporcionalidade, motivação, segurança jurídica</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões princípios da administração pública</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d6" onclick="tog('d6')">
+      <div class="rleft"><div class="rlabel">Dia 7</div><div class="rsub">organização administrativa</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-pub">Adm Pública</span><span class="bdesc">Adm. direta e indireta: autarquias, fundações, empresas públicas, SEM</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-pub">Adm Pública</span><span class="bdesc">Centralização, descentralização, concentração e desconcentração</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões organização administrativa</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d7" onclick="tog('d7')">
+      <div class="rleft"><div class="rlabel">Dia 8</div><div class="rsub">modelos de gestão</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-pub">Adm Pública</span><span class="bdesc">Modelos: patrimonialista, burocrático (Weber) e gerencial (NPM)</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-pub">Adm Pública</span><span class="bdesc">Reforma administrativa (Bresser-Pereira): PDRAE, OS, OSCIPs</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões modelos de gestão pública</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d8" onclick="tog('d8')">
+      <div class="rleft"><div class="rlabel">Dia 9</div><div class="rsub">poderes administrativos</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-pub">Adm Pública</span><span class="bdesc">Poderes: hierárquico, disciplinar, regulamentar e de polícia</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-pub">Adm Pública</span><span class="bdesc">Ato administrativo: conceito, requisitos, atributos, classificação</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões poderes + atos administrativos</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d9" onclick="tog('d9')">
+      <div class="rleft"><div class="rlabel">Dia 10</div><div class="rsub">controle + responsabilidade</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-pub">Adm Pública</span><span class="bdesc">Controle: interno, externo e social. CGU, TCU, TCE, MP.</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-pub">Adm Pública</span><span class="bdesc">Responsabilidade civil do Estado: teoria objetiva, casos, excludentes</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões controle + responsabilidade</span></div></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="note">Atenção FCC (TJ CE): cobra organização administrativa e atos administrativos com muita profundidade. Estude cada entidade da adm. indireta separadamente.</div>
+</div>
+
+<!-- ══ BLOCO 3 — GESTÃO DE PESSOAS ══ -->
+<div id="bloco2" class="bloco">
+  <div class="bloco-header">Bloco 3 — Gestão de Pessoas</div>
+  <div class="bloco-desc">Aparece em 90% dos concursos administrativos. As teorias de motivação são as mais cobradas em todo o Brasil.</div>
+  <div class="callout c-tip">✅ <strong>Vantagem sua:</strong> com formação em Administração, esse bloco é o mais familiar. Foque nos detalhes que a banca gosta de cobrar — diferenças entre teorias, ordem das hierarquias, nomenclaturas.</div>
+
+  <div class="grid">
+
+    <div class="row" id="d10" onclick="tog('d10')">
+      <div class="rleft"><div class="rlabel">Dia 11</div><div class="rsub">motivação</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-pes">Gestão Pessoas</span><span class="bdesc">Maslow (hierarquia de necessidades) e Herzberg (fatores higiene/motivação)</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-pes">Gestão Pessoas</span><span class="bdesc">McGregor (X e Y), McClelland (necessidades adquiridas), Vroom (expectância)</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões teorias de motivação</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d11" onclick="tog('d11')">
+      <div class="rleft"><div class="rlabel">Dia 12</div><div class="rsub">liderança</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-pes">Gestão Pessoas</span><span class="bdesc">Estilos de liderança: autocrática, democrática, liberal (laissez-faire)</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-pes">Gestão Pessoas</span><span class="bdesc">Liderança situacional (Hersey e Blanchard) + Poder e influência</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões liderança e poder</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d12" onclick="tog('d12')">
+      <div class="rleft"><div class="rlabel">Dia 13</div><div class="rsub">cultura e clima</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-pes">Gestão Pessoas</span><span class="bdesc">Cultura organizacional: conceito, elementos, tipos (Handy, Quinn)</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-pes">Gestão Pessoas</span><span class="bdesc">Clima organizacional + comportamento organizacional: grupos e equipes</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões cultura, clima e comportamento organizacional</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d13" onclick="tog('d13')">
+      <div class="rleft"><div class="rlabel">Dia 14</div><div class="rsub">recrutamento + avaliação</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-pes">Gestão Pessoas</span><span class="bdesc">Recrutamento (interno/externo) e seleção: técnicas, vantagens e desvantagens</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-pes">Gestão Pessoas</span><span class="bdesc">Avaliação de desempenho: métodos, 360°, erros comuns (halo, tendência central)</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões recrutamento + avaliação de desempenho</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d14" onclick="tog('d14')">
+      <div class="rleft"><div class="rlabel">Dia 15</div><div class="rsub">treinamento + conflitos</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-pes">Gestão Pessoas</span><span class="bdesc">Treinamento vs. desenvolvimento: levantamento de necessidades, LNT</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-pes">Gestão Pessoas</span><span class="bdesc">Gerenciamento de conflitos: tipos, estilos de negociação (Thomas-Kilmann)</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões treinamento + conflitos</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ BLOCO 4 — ESTRUTURAS + PROCESSOS ══ -->
+<div id="bloco3" class="bloco">
+  <div class="bloco-header">Bloco 4 — Estruturas Organizacionais e Gestão por Processos</div>
+  <div class="bloco-desc">Estruturas organizacionais aparecem em todos os concursos. Processos e qualidade são fortes em IFs, TJ CE e TCE CE.</div>
+  <div class="callout c-info">📊 <strong>Fontes reais:</strong> FCC (TJ CE) cobra muito departamentalização e tipos de estrutura. AOCP cobra gestão por processos e PDCA em concursos de IFs.</div>
+
+  <div class="grid">
+
+    <div class="row" id="d15" onclick="tog('d15')">
+      <div class="rleft"><div class="rlabel">Dia 16</div><div class="rsub">estruturas organizacionais</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-org">Org. Admin.</span><span class="bdesc">Estruturas: linear, funcional, linha-staff, matricial, em rede</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-org">Org. Admin.</span><span class="bdesc">Departamentalização: funcional, territorial, por produto, por cliente, mista</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões estruturas + departamentalização</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d16" onclick="tog('d16')">
+      <div class="rleft"><div class="rlabel">Dia 17</div><div class="rsub">gestão por processos</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-proc">Processos</span><span class="bdesc">Gestão por processos: conceito, tipos (negócio, apoio, gestão), mapeamento</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-proc">Processos</span><span class="bdesc">PDCA: Plan-Do-Check-Act. Ciclo de melhoria contínua. Kaizen.</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões gestão por processos + PDCA</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d17" onclick="tog('d17')">
+      <div class="rleft"><div class="rlabel">Dia 18</div><div class="rsub">qualidade total</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-proc">Qualidade</span><span class="bdesc">TQM (Total Quality Management): princípios, Deming, Juran, Crosby</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-proc">Qualidade</span><span class="bdesc">GESPÚBLICA, 5S, 6 Sigma, indicadores de qualidade no setor público</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões qualidade total + ferramentas</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d18" onclick="tog('d18')">
+      <div class="rleft"><div class="rlabel">Dia 19</div><div class="rsub">comunicação + tomada de decisão</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-org">Org. Admin.</span><span class="bdesc">Comunicação organizacional: barreiras, redes formais/informais, rádio corredor</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-org">Org. Admin.</span><span class="bdesc">Tomada de decisão: modelos (racional, limitada, intuitivo), ferramentas (GUT, 5W2H)</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões comunicação + tomada de decisão</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ BLOCO 5 — LICITAÇÕES ══ -->
+<div id="bloco4" class="bloco">
+  <div class="bloco-header">Bloco 5 — Licitações e Contratos (Lei 14.133/2021)</div>
+  <div class="bloco-desc">Obrigatório em IFs, TJ CE, TCE CE e maioria das prefeituras. A nova lei substituiu a 8.666 — bancas já cobram a 14.133.</div>
+  <div class="callout c-warn">⚠️ <strong>Atenção:</strong> a Lei 14.133/2021 (nova Lei de Licitações) é cobrada desde 2023. A Lei 8.666/93 foi revogada. Foque totalmente na 14.133. A AOCP e FCC já cobraram em provas recentes.</div>
+
+  <div class="grid">
+
+    <div class="row" id="d19" onclick="tog('d19')">
+      <div class="rleft"><div class="rlabel">Dia 20</div><div class="rsub">princípios + modalidades</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-lic">Licitações</span><span class="bdesc">Princípios da licitação: isonomia, vantajosidade, competitividade, legalidade</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-lic">Licitações</span><span class="bdesc">Modalidades: pregão, concorrência, concurso, leilão e diálogo competitivo</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões princípios + modalidades Lei 14.133</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d20" onclick="tog('d20')">
+      <div class="rleft"><div class="rlabel">Dia 21</div><div class="rsub">fases + contratação direta</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-lic">Licitações</span><span class="bdesc">Fases da licitação: planejamento, seleção do fornecedor, contratação</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-lic">Licitações</span><span class="bdesc">Dispensa e inexigibilidade: hipóteses, limites de valor, casos práticos</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões fases + contratação direta</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d21" onclick="tog('d21')">
+      <div class="rleft"><div class="rlabel">Dia 22</div><div class="rsub">contratos + fiscalização</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-lic">Licitações</span><span class="bdesc">Contratos administrativos: cláusulas exorbitantes, alteração, rescisão</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-lic">Licitações</span><span class="bdesc">Fiscalização: gestor e fiscal de contrato, atesto, termo de referência</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões contratos + fiscalização</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d22" onclick="tog('d22')">
+      <div class="rleft"><div class="rlabel">Dia 23</div><div class="rsub">simulado licitações</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h30</span><div class="bright"><span class="btag tag-rev">Revisão</span><span class="bdesc">Revisão da Lei 14.133 — casos práticos e pegadinhas frequentes</span></div></div>
+        <div class="block"><span class="btime">20h30–22h</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">30 questões licitações — foque em questões pós-2023 (nova lei)</span></div></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="note">QConcursos: filtre questões a partir de 2023 para pegar questões da Lei 14.133. Questões da 8.666 ajudam na lógica mas não refletem a lei atual.</div>
+</div>
+
+<!-- ══ BLOCO 6 — REVISÃO GERAL ══ -->
+<div id="bloco5" class="bloco">
+  <div class="bloco-header">Bloco 6 — Revisão Geral + Simulados por Banca</div>
+  <div class="bloco-desc">Execute quando surgir um novo edital. Ajuste o foco conforme a banca e o cargo específico.</div>
+  <div class="callout c-tip">🔄 <strong>Módulo cíclico:</strong> repita sempre que abrir um novo edital. Cada banca tem estilo próprio — adapte os simulados. AOCP: objetiva e literal. FCC: interpretativa. Cebraspe: pegadinhas de Certo/Errado.</div>
+
+  <div class="grid">
+
+    <div class="row" id="d23" onclick="tog('d23')">
+      <div class="rleft"><div class="rlabel">Reta final · 1</div><div class="rsub">diagnóstico</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–21h</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">Simulado administrativo completo: 40 questões todos os blocos</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">Análise</span><span class="bdesc">Identifique os 2 blocos com pior desempenho — foque neles</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d24" onclick="tog('d24')">
+      <div class="rleft"><div class="rlabel">Reta final · 2</div><div class="rsub">ponto fraco</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h30</span><div class="bright"><span class="btag tag-rev">Revisão</span><span class="bdesc">Revisão intensa do bloco mais fraco — teoria + mapa mental</span></div></div>
+        <div class="block"><span class="btime">20h30–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">40 questões do bloco mais fraco — só da banca do seu concurso</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d25" onclick="tog('d25')">
+      <div class="rleft"><div class="rlabel">Reta final · 3</div><div class="rsub">simulado banca</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–21h30</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">Simulado completo estilo da banca do edital — condições reais</span></div></div>
+        <div class="block"><span class="btime">21h30–22h</span><div class="bright"><span class="btag tag-rev">Análise</span><span class="bdesc">Gabarito + anotar padrões de cobrança da banca</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d26" onclick="tog('d26')">
+      <div class="rleft"><div class="rlabel">Reta final · 4</div><div class="rsub">revisão legislação específica</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–21h</span><div class="bright"><span class="btag tag-rev">Revisão</span><span class="bdesc">Legislação específica do edital: leia o texto literal da lei — AOCP cobra exatamente assim</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões da lei específica do concurso</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d27" onclick="tog('d27')">
+      <div class="rleft"><div class="rlabel">Reta final · 5</div><div class="rsub">consolidação final</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h30</span><div class="bright"><span class="btag tag-rev">Flashcards</span><span class="bdesc">Só revisão leve dos mapas mentais — sem conteúdo novo</span></div></div>
+        <div class="block"><span class="btime">20h30–22h</span><div class="bright"><span class="btag tag-rev">Descanso</span><span class="bdesc">Prepare documentos, durma bem — o que aprendeu já está na memória</span></div></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="tip">Este bloco é reutilizável para cada novo concurso. O conteúdo dos blocos 1–5 já está consolidado — na reta final basta ajustar o foco para a banca e a legislação específica do edital.</div>
+</div>
+
+<div style="text-align:center;margin-top:1.5rem;">
+  <button class="reset-btn" onclick="resetAll()">limpar checklist</button>
+</div>
+
+<footer>base administrativa · concursos nível médio · CE · iamanarielly 🤍</footer>
+</div>
+
+<script>
+const TOTAL = 28;
+const RANGES = [[0,4],[5,9],[10,14],[15,18],[19,22],[23,27]];
+
+function isAuth(){try{return atob(localStorage.getItem('hub_auth')||'')==='concursos2026';}catch(e){return false;}}
+function tog(id){if(!isAuth())return;
+
+  const el=document.getElementById(id);if(!el)return;
+  el.classList.toggle('done');save();updateStats();updateTabs();
+}
+function save(){
+  const done=[];
+  for(let i=0;i<TOTAL;i++){const el=document.getElementById('d'+i);if(el&&el.classList.contains('done'))done.push(i);}
+  try{localStorage.setItem('adm_base26',JSON.stringify(done));}catch(e){}
+}
+function load(){
+  try{
+    const d=localStorage.getItem('adm_base26');if(!d)return;
+    JSON.parse(d).forEach(i=>{const el=document.getElementById('d'+i);if(el)el.classList.add('done');});
+  }catch(e){}
+}
+function updateStats(){
+  let c=0;
+  for(let i=0;i<TOTAL;i++){const el=document.getElementById('d'+i);if(el&&el.classList.contains('done'))c++;}
+  const pct=Math.round(c/TOTAL*100);
+  const ds=document.getElementById('done-stat');if(ds)ds.textContent=c;
+  const ps=document.getElementById('pct-stat');if(ps)ps.textContent=pct+'%';
+  const pp=document.getElementById('prog-pct');if(pp)pp.textContent=pct+'%';
+  const pf=document.getElementById('prog-fill');if(pf)pf.style.width=pct+'%';
+}
+function updateTabs(){
+  const tabs=document.querySelectorAll('.tab');
+  RANGES.forEach(([s,e],i)=>{
+    let all=true;
+    for(let d=s;d<=e;d++){const el=document.getElementById('d'+d);if(!el||!el.classList.contains('done')){all=false;break;}}
+    if(tabs[i])tabs[i].classList.toggle('done',all);
+  });
+}
+function showBloco(n){
+  document.querySelectorAll('.bloco').forEach((b,i)=>b.classList.toggle('active',i===n));
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));
+}
+function resetAll(){if(!isAuth())return;
+
+  if(!confirm('Limpar todo o progresso?'))return;
+  for(let i=0;i<TOTAL;i++){const el=document.getElementById('d'+i);if(el)el.classList.remove('done');}
+  try{localStorage.removeItem('adm_base26');}catch(e){}
+  updateStats();updateTabs();
+}
+load();updateStats();updateTabs();
+</script>
+<script src="auth.js"></script>
+</body>
+</html>

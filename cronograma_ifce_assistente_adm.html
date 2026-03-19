@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cronograma IFCE — Assistente em Administração 2026</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #f9f9f7; color: #1a1a1a; padding: 1.5rem; max-width: 860px; margin: 0 auto; }
+.header { padding: 1.25rem 0 0.5rem; }
+.badge { display: inline-block; font-size: 12px; padding: 3px 10px; border-radius: 8px; background: #FCEBEB; color: #A32D2D; font-weight: 500; margin-bottom: 8px; }
+.tabs { display: flex; gap: 4px; margin: 1rem 0 0.75rem; flex-wrap: wrap; }
+.tab { padding: 6px 14px; font-size: 13px; border-radius: 8px; border: 0.5px solid #ccc; cursor: pointer; background: #fff; color: #666; }
+.tab.active { background: #E6F1FB; color: #185FA5; border-color: #378ADD; font-weight: 500; }
+.week { display: none; }
+.week.active { display: block; }
+.week-header { font-size: 15px; font-weight: 500; color: #1a1a1a; margin-bottom: 4px; }
+.week-focus { font-size: 12px; color: #666; margin-bottom: 0.75rem; }
+.day-grid { display: flex; flex-direction: column; gap: 6px; }
+.day-row { display: grid; grid-template-columns: 110px 1fr; gap: 10px; align-items: start; padding: 10px 12px; background: #fff; border: 0.5px solid #ddd; border-radius: 8px; }
+.day-label { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+.day-date { font-size: 11px; color: #999; }
+.blocks { display: flex; flex-direction: column; gap: 4px; }
+.block { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.block-time { font-size: 11px; color: #999; min-width: 95px; }
+.block-tag { font-size: 11px; padding: 2px 8px; border-radius: 8px; font-weight: 500; white-space: nowrap; }
+.tag-port { background: #E6F1FB; color: #185FA5; }
+.tag-lei { background: #FCEBEB; color: #A32D2D; }
+.tag-adm { background: #EAF3DE; color: #3B6D11; }
+.tag-info { background: #FAEEDA; color: #854F0B; }
+.tag-log { background: #EEEDFE; color: #3C3489; }
+.tag-rev { background: #f1efe8; color: #5F5E5A; }
+.tag-sim { background: #FAECE7; color: #993C1D; }
+.block-desc { font-size: 12px; color: #666; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px; margin: 0.75rem 0; }
+.leg-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #666; }
+.leg-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.qc-note { font-size: 12px; color: #185FA5; background: #E6F1FB; border-radius: 8px; padding: 8px 12px; margin-top: 6px; }
+.tip-box { margin-top: 0.75rem; padding: 10px 12px; background: #f1efe8; border-radius: 8px; font-size: 12px; color: #5F5E5A; line-height: 1.6; }
+.prova-row { border: 1.5px solid #378ADD !important; }
+.prova-label { color: #185FA5 !important; }
+@media print {
+  .tabs { display: none; }
+  .week { display: block !important; margin-bottom: 2rem; page-break-inside: avoid; }
+  body { background: white; padding: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="badge">Prova: 3 de maio de 2026 — 45 dias</div>
+  <div style="font-size: 22px; font-weight: 500; color: #1a1a1a; margin-bottom: 4px;">Cronograma semanal · IFCE 2026</div>
+  <div style="font-size: 13px; color: #666;">3h por noite · 7 dias/semana · 20 mar → 3 mai · Assistente em Administração</div>
+</div>
+
+<div class="legend">
+  <span class="leg-item"><span class="leg-dot" style="background:#378ADD"></span>Português</span>
+  <span class="leg-item"><span class="leg-dot" style="background:#E24B4A"></span>Lei 8.112</span>
+  <span class="leg-item"><span class="leg-dot" style="background:#639922"></span>Administração</span>
+  <span class="leg-item"><span class="leg-dot" style="background:#BA7517"></span>Informática</span>
+  <span class="leg-item"><span class="leg-dot" style="background:#534AB7"></span>Lógica</span>
+  <span class="leg-item"><span class="leg-dot" style="background:#888780"></span>Revisão/Simulado</span>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showWeek(0)">Semana 1</div>
+  <div class="tab" onclick="showWeek(1)">Semana 2</div>
+  <div class="tab" onclick="showWeek(2)">Semana 3</div>
+  <div class="tab" onclick="showWeek(3)">Semana 4</div>
+  <div class="tab" onclick="showWeek(4)">Semana 5</div>
+  <div class="tab" onclick="showWeek(5)">Semana 6</div>
+</div>
+
+<!-- SEMANA 1 -->
+<div id="week0" class="week active">
+  <div class="week-header">Semana 1 — Português + Lei 8.112 (base)</div>
+  <div class="week-focus">Foco: entender a estrutura da prova e atacar os temas mais cobrados desde o início.</div>
+  <div class="day-grid">
+    <div class="day-row">
+      <div><div class="day-label">Qui 20/03</div><div class="day-date">Hoje</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-port">Português</span><span class="block-desc">Interpretação de texto — técnicas de leitura</span></div>
+        <div class="block"><span class="block-time">20h–21h</span><span class="block-tag tag-lei">Lei 8.112</span><span class="block-desc">Art. 1–50: provimento, posse, exercício</span></div>
+        <div class="block"><span class="block-time">21h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">10 questões de português + 10 de Lei 8.112</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Sex 21/03</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-port">Português</span><span class="block-desc">Classes de palavras e flexões</span></div>
+        <div class="block"><span class="block-time">20h–21h</span><span class="block-tag tag-lei">Lei 8.112</span><span class="block-desc">Art. 51–100: direitos, vencimentos, férias</span></div>
+        <div class="block"><span class="block-time">21h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">20 questões Lei 8.112 (filtrar banca AOCP)</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Sáb 22/03</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-port">Português</span><span class="block-desc">Sintaxe: sujeito, predicado, complementos</span></div>
+        <div class="block"><span class="block-time">20h–21h</span><span class="block-tag tag-lei">Lei 8.112</span><span class="block-desc">Art. 101–150: licenças, afastamentos</span></div>
+        <div class="block"><span class="block-time">21h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">20 questões mistas Português + Lei</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Dom 23/03</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-port">Português</span><span class="block-desc">Concordância verbal e nominal</span></div>
+        <div class="block"><span class="block-time">20h–21h</span><span class="block-tag tag-lei">Lei 8.112</span><span class="block-desc">Art. 151–250: responsabilidades, PAD</span></div>
+        <div class="block"><span class="block-time">21h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">20 questões Lei 8.112 — PAD e penalidades</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Seg 24/03</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-port">Português</span><span class="block-desc">Regência e crase</span></div>
+        <div class="block"><span class="block-time">20h–21h</span><span class="block-tag tag-lei">Lei 8.112</span><span class="block-desc">Revisão geral lei — pontos fracos do dia</span></div>
+        <div class="block"><span class="block-time">21h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">Mini simulado: 30 questões cronometradas</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Ter 25/03</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-port">Português</span><span class="block-desc">Pontuação e coesão textual</span></div>
+        <div class="block"><span class="block-time">20h–21h</span><span class="block-tag tag-adm">Administração</span><span class="block-desc">Introdução: funções PODC, evolução do pensamento</span></div>
+        <div class="block"><span class="block-time">21h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">20 questões de Administração geral</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Qua 26/03</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h30</span><span class="block-tag tag-rev">Revisão</span><span class="block-desc">Revisitar erros da semana no QConcursos</span></div>
+        <div class="block"><span class="block-time">20h30–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">Simulado semana 1: 40 questões</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="qc-note">QConcursos: filtre por "Assistente em Administração" + "AOCP" + "Institutos Federais" para questões mais próximas da sua prova.</div>
+</div>
+
+<!-- SEMANA 2 -->
+<div id="week1" class="week">
+  <div class="week-header">Semana 2 — Lei 8.112 (aprofundamento) + Administração</div>
+  <div class="week-focus">Foco: dominar a lei literalmente. AOCP cobra texto da lei, não interpretação.</div>
+  <div class="day-grid">
+    <div class="day-row">
+      <div><div class="day-label">Qui 27/03</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-lei">Lei 8.112</span><span class="block-desc">Revisão PAD + prazos prescricionais</span></div>
+        <div class="block"><span class="block-time">20h–21h</span><span class="block-tag tag-adm">Administração</span><span class="block-desc">Planejamento estratégico, tático e operacional</span></div>
+        <div class="block"><span class="block-time">21h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">20 questões de planejamento</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Sex 28/03</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-lei">Lei 8.112</span><span class="block-desc">Ética e código de conduta no serviço público</span></div>
+        <div class="block"><span class="block-time">20h–21h</span><span class="block-tag tag-adm">Administração</span><span class="block-desc">Organização: estruturas, departamentalização</span></div>
+        <div class="block"><span class="block-time">21h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">20 questões de organização e estrutura</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Sáb 29/03</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-adm">Administração</span><span class="block-desc">Gestão de pessoas: recrutamento, seleção, treinamento</span></div>
+        <div class="block"><span class="block-time">20h–21h</span><span class="block-tag tag-port">Português</span><span class="block-desc">Tipos de texto: dissertativo, narrativo, descritivo</span></div>
+        <div class="block"><span class="block-time">21h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">20 questões mistas</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Dom 30/03</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-adm">Administração</span><span class="block-desc">Controle: indicadores, avaliação de desempenho</span></div>
+        <div class="block"><span class="block-time">20h–21h</span><span class="block-tag tag-port">Português</span><span class="block-desc">Pronomes: emprego e colocação</span></div>
+        <div class="block"><span class="block-time">21h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">20 questões controle + pronomes</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Seg 31/03</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-adm">Administração</span><span class="block-desc">Licitações básicas: Lei 14.133/2021</span></div>
+        <div class="block"><span class="block-time">20h–21h</span><span class="block-tag tag-port">Português</span><span class="block-desc">Ortografia e acentuação</span></div>
+        <div class="block"><span class="block-time">21h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">20 questões licitações + ortografia</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Ter 01/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-info">Informática</span><span class="block-desc">Conceitos básicos: hardware, software, SO Windows/Linux</span></div>
+        <div class="block"><span class="block-time">20h–21h</span><span class="block-tag tag-log">Lógica</span><span class="block-desc">Proposições lógicas, conectivos, tabela verdade</span></div>
+        <div class="block"><span class="block-time">21h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">20 questões informática + lógica</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Qua 02/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h30</span><span class="block-tag tag-rev">Revisão</span><span class="block-desc">Revisar caderno de erros da semana</span></div>
+        <div class="block"><span class="block-time">20h30–22h</span><span class="block-tag tag-sim">Simulado</span><span class="block-desc">Simulado semana 2: 50 questões cronometradas</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SEMANA 3 -->
+<div id="week2" class="week">
+  <div class="week-header">Semana 3 — Informática + Lógica + Administração Pública</div>
+  <div class="week-focus">Foco: fechar as disciplinas menores e entrar no ritmo de questões pesadas.</div>
+  <div class="day-grid">
+    <div class="day-row">
+      <div><div class="day-label">Qui 03/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-info">Informática</span><span class="block-desc">Pacote Office: Word, Excel, PowerPoint</span></div>
+        <div class="block"><span class="block-time">20h–21h</span><span class="block-tag tag-log">Lógica</span><span class="block-desc">Silogismos e argumentos lógicos</span></div>
+        <div class="block"><span class="block-time">21h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">20 questões Office + silogismos</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Sex 04/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-info">Informática</span><span class="block-desc">Internet, e-mail, segurança da informação</span></div>
+        <div class="block"><span class="block-time">20h–21h</span><span class="block-tag tag-log">Lógica</span><span class="block-desc">Sequências e raciocínio matemático básico</span></div>
+        <div class="block"><span class="block-time">21h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">20 questões segurança + sequências</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Sáb 05/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-adm">Adm Pública</span><span class="block-desc">Princípios LIMPE e estrutura federal</span></div>
+        <div class="block"><span class="block-time">20h–21h</span><span class="block-tag tag-adm">Adm Pública</span><span class="block-desc">Lei 11.091: carreira TAE, PCCTAE</span></div>
+        <div class="block"><span class="block-time">21h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">20 questões administração pública</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Dom 06/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-port">Português</span><span class="block-desc">Redação oficial: ofício, memorando, ata</span></div>
+        <div class="block"><span class="block-time">20h–21h</span><span class="block-tag tag-lei">Lei 8.112</span><span class="block-desc">Revisão geral com foco nos pontos mais errados</span></div>
+        <div class="block"><span class="block-time">21h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">20 questões redação oficial + Lei 8.112</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Seg 07/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-adm">Administração</span><span class="block-desc">Gestão por processos e qualidade total</span></div>
+        <div class="block"><span class="block-time">20h–21h</span><span class="block-tag tag-log">Lógica</span><span class="block-desc">Conjuntos e diagramas lógicos</span></div>
+        <div class="block"><span class="block-time">21h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">20 questões processos + conjuntos</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Ter 08/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-info">Informática</span><span class="block-desc">Revisão informática: pontos mais cobrados</span></div>
+        <div class="block"><span class="block-time">20h–21h</span><span class="block-tag tag-port">Português</span><span class="block-desc">Revisão português: pontos mais errados</span></div>
+        <div class="block"><span class="block-time">21h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">20 questões mistas todas as disciplinas</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Qua 09/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h30</span><span class="block-tag tag-rev">Revisão</span><span class="block-desc">Caderno de erros acumulado das 3 semanas</span></div>
+        <div class="block"><span class="block-time">20h30–22h</span><span class="block-tag tag-sim">Simulado</span><span class="block-desc">Simulado completo: 60 questões cronometradas</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SEMANA 4 -->
+<div id="week3" class="week">
+  <div class="week-header">Semana 4 — Revisão profunda + questões por disciplina</div>
+  <div class="week-focus">Foco: atacar os pontos fracos identificados nos simulados anteriores.</div>
+  <div class="day-grid">
+    <div class="day-row">
+      <div><div class="day-label">Qui 10/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-port">Português</span><span class="block-desc">Revisão: o que mais errou até aqui</span></div>
+        <div class="block"><span class="block-time">20h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">40 questões Português só da banca AOCP</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Sex 11/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-lei">Lei 8.112</span><span class="block-desc">Revisão artigos mais cobrados em concursos TAE</span></div>
+        <div class="block"><span class="block-time">20h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">40 questões Lei 8.112 só da banca AOCP</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Sáb 12/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-adm">Administração</span><span class="block-desc">Revisão: administração geral e pública</span></div>
+        <div class="block"><span class="block-time">20h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">40 questões Administração</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Dom 13/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-log">Lógica</span><span class="block-desc">Revisão lógica: pontos mais difíceis</span></div>
+        <div class="block"><span class="block-time">20h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">40 questões Lógica + Informática</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Seg 14/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–22h</span><span class="block-tag tag-sim">Simulado</span><span class="block-desc">Simulado completo com gabarito e análise de desempenho</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Ter 15/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h30</span><span class="block-tag tag-rev">Revisão</span><span class="block-desc">Análise do simulado: identificar padrão de erros</span></div>
+        <div class="block"><span class="block-time">20h30–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">Questões focadas no que errou no simulado</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Qua 16/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-adm">Administração</span><span class="block-desc">Orçamento público básico + gestão financeira</span></div>
+        <div class="block"><span class="block-time">20h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">30 questões orçamento + administração financeira</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SEMANA 5 -->
+<div id="week4" class="week">
+  <div class="week-header">Semana 5 — Intensivão de simulados</div>
+  <div class="week-focus">Foco: ritmo de prova. Velocidade + precisão. Menos teoria, máximo de questões.</div>
+  <div class="day-grid">
+    <div class="day-row">
+      <div><div class="day-label">Qui 17/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–19h30</span><span class="block-tag tag-rev">Revisão</span><span class="block-desc">30min de flashcards (Lei 8.112 + conceitos-chave)</span></div>
+        <div class="block"><span class="block-time">19h30–22h</span><span class="block-tag tag-sim">Simulado</span><span class="block-desc">Simulado completo 60 questões — cronometre!</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Sex 18/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-rev">Análise</span><span class="block-desc">Análise do simulado de quinta: padrões de erro</span></div>
+        <div class="block"><span class="block-time">20h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">Questões específicas dos pontos errados</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Sáb 19/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–21h30</span><span class="block-tag tag-sim">Simulado</span><span class="block-desc">Simulado completo estilo AOCP — condições reais</span></div>
+        <div class="block"><span class="block-time">21h30–22h</span><span class="block-tag tag-rev">Revisão</span><span class="block-desc">Revisão rápida do gabarito</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Dom 20/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-lei">Lei 8.112</span><span class="block-desc">Revisão final: prazos, penalidades, licenças</span></div>
+        <div class="block"><span class="block-time">20h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">50 questões Lei 8.112</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Seg 21/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–22h</span><span class="block-tag tag-rev">Revisão</span><span class="block-desc">Feriado: revisão geral + caderno de erros completo</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Ter 22/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–19h30</span><span class="block-tag tag-rev">Flashcards</span><span class="block-desc">Revisão rápida conceitos-chave</span></div>
+        <div class="block"><span class="block-time">19h30–22h</span><span class="block-tag tag-sim">Simulado</span><span class="block-desc">Simulado 60 questões com tempo controlado</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Qua 23/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h</span><span class="block-tag tag-rev">Análise</span><span class="block-desc">Análise dos 3 simulados da semana: evolução</span></div>
+        <div class="block"><span class="block-time">20h–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">Questões nos pontos ainda fracos</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SEMANA 6 -->
+<div id="week5" class="week">
+  <div class="week-header">Semana 6 — Semana final (24/04 a 03/05)</div>
+  <div class="week-focus">Foco: manter o que aprendeu. Sem conteúdo novo. Revisão leve + descanso.</div>
+  <div class="day-grid">
+    <div class="day-row">
+      <div><div class="day-label">Qui–Sex 24–25/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h30</span><span class="block-tag tag-rev">Revisão</span><span class="block-desc">Revisão leve: Lei 8.112 + Português (só o que domina menos)</span></div>
+        <div class="block"><span class="block-time">20h30–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">30 questões por noite — sem pressão</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Sáb 26/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–21h30</span><span class="block-tag tag-sim">Simulado final</span><span class="block-desc">Último simulado completo — condições reais de prova</span></div>
+        <div class="block"><span class="block-time">21h30–22h</span><span class="block-tag tag-rev">Revisão</span><span class="block-desc">Gabarito e anotações finais</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Dom 27/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–21h</span><span class="block-tag tag-rev">Revisão</span><span class="block-desc">Só revisão do que marcou nas anotações: fórmulas, artigos, conceitos</span></div>
+        <div class="block"><span class="block-time">21h–22h</span><span class="block-tag tag-rev">Descanso</span><span class="block-desc">Descanse — seu cérebro precisa consolidar</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Seg–Ter 28–29/04</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">19h–20h30</span><span class="block-tag tag-rev">Revisão leve</span><span class="block-desc">Flashcards + revisão dos temas mais cobrados</span></div>
+        <div class="block"><span class="block-time">20h30–22h</span><span class="block-tag tag-rev">QConcursos</span><span class="block-desc">20 questões — só as que você já domina (para ganhar confiança)</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Qua 30/04 – Qui 01/05</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">Noite</span><span class="block-tag tag-rev">Descanso</span><span class="block-desc">Nada de conteúdo novo. Durma bem. Revisar só o caderno de erros por 30min.</span></div>
+      </div>
+    </div>
+    <div class="day-row">
+      <div><div class="day-label">Sex 02/05</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">Noite</span><span class="block-tag tag-rev">Véspera</span><span class="block-desc">Prepare os documentos, separe o material, durma cedo. Nada de estudar.</span></div>
+      </div>
+    </div>
+    <div class="day-row prova-row">
+      <div><div class="day-label prova-label">Sáb 03/05</div><div class="day-date" style="color:#185FA5;">DIA DA PROVA</div></div>
+      <div class="blocks">
+        <div class="block"><span class="block-time">Manhã</span><span class="block-tag tag-rev">Preparo</span><span class="block-desc">Café da manhã reforçado, saia cedo, leve documento e caneta</span></div>
+        <div class="block"><span class="block-time">Prova</span><span class="block-tag tag-sim">Prova objetiva</span><span class="block-desc">Período da manhã — Assistente em Administração</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="tip-box">Dica final: na véspera, não tente estudar. O que você aprendeu em 6 semanas já está na memória. Dormir bem vale mais do que uma revisão de madrugada.</div>
+</div>
+
+<script>
+function showWeek(n) {
+  document.querySelectorAll('.week').forEach((w,i) => w.classList.toggle('active', i===n));
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===n));
+}
+</script>
+<script src="auth.js"></script>
+</body>
+</html>

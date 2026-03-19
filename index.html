@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meu Espaço de Estudos</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="my-notion-face-transparent.png">
+<style>
+:root {
+  --bg:#0f0f11;--surface:#18181c;--surface2:#202026;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#e8e8ec;--muted:#6b6b78;
+  --accent:#7c6ff7;--accent-dim:rgba(124,111,247,0.12);
+  --green:#52c97a;--green-dim:rgba(82,201,122,0.1);
+  --amber:#f5a623;--amber-dim:rgba(245,166,35,0.1);
+  --red:#f76b6b;--red-dim:rgba(247,107,107,0.1);
+  --blue:#4f8ef7;--blue-dim:rgba(79,142,247,0.1);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+nav{position:sticky;top:0;z-index:100;background:rgba(15,15,17,0.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 1.25rem;height:52px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{display:flex;align-items:center;gap:10px;}
+.nav-avatar{width:28px;height:28px;border-radius:50%;background:var(--accent-dim);border:1px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:14px;overflow:hidden;flex-shrink:0;}
+.nav-avatar img{width:100%;height:100%;object-fit:cover;}
+.nav-name{font-size:13px;font-weight:500;}
+.nav-links{display:flex;gap:2px;}
+.nav-link{font-size:12px;color:var(--muted);padding:5px 10px;border-radius:6px;cursor:pointer;text-decoration:none;transition:all .15s;font-family:'DM Mono',monospace;border:none;background:transparent;}
+.nav-link:hover,.nav-link.active{color:var(--text);background:var(--surface2);}
+
+.container{max-width:900px;margin:0 auto;padding:2rem 1rem 5rem;}
+.section{display:none;}
+.section.active{display:block;}
+
+.hero{margin-bottom:2rem;}
+.hero-greet{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:8px;}
+.hero-greet span{color:var(--accent);}
+.hero-title{font-size:clamp(22px,5vw,32px);font-weight:300;letter-spacing:-.02em;line-height:1.2;margin-bottom:6px;}
+.hero-title strong{font-weight:500;}
+.hero-sub{font-size:13px;color:var(--muted);}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin:1.5rem 0 2rem;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.stat-val{font-size:22px;font-weight:500;font-family:'DM Mono',monospace;letter-spacing:-.02em;}
+.stat-label{font-size:11px;color:var(--muted);margin-top:2px;}
+.stat.green .stat-val{color:var(--green);}
+.stat.amber .stat-val{color:var(--amber);}
+.stat.purple .stat-val{color:var(--accent);}
+.stat.blue .stat-val{color:var(--blue);}
+
+.sec-title{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between;}
+.sec-add{font-size:11px;color:var(--accent);background:var(--accent-dim);padding:3px 10px;border-radius:20px;cursor:pointer;border:none;font-family:'DM Mono',monospace;}
+.sec-add:hover{opacity:.8;}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:10px;margin-bottom:2rem;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:border-color .15s,transform .1s;text-decoration:none;display:block;}
+.card:hover{border-color:var(--border2);transform:translateY(-1px);}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.card-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.card-badge{font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;}
+.badge-active{background:var(--green-dim);color:var(--green);}
+.badge-prep{background:var(--accent-dim);color:var(--accent);}
+.badge-closed{background:var(--surface2);color:var(--muted);}
+.card-name{font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px;}
+.card-sub{font-size:12px;color:var(--muted);margin-bottom:12px;}
+.card-prog{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;margin-bottom:6px;}
+.card-prog-fill{height:100%;border-radius:2px;transition:width .4s;}
+.card-prog-label{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;display:flex;justify-content:space-between;}
+.card-date{font-size:11px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);display:flex;justify-content:space-between;}
+.card-date span{color:var(--text);}
+
+.concursos-list{display:flex;flex-direction:column;gap:8px;margin-bottom:2rem;}
+.concurso-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;transition:border-color .15s;}
+.concurso-row:hover{border-color:var(--border2);}
+.concurso-nome{font-size:13px;font-weight:500;color:var(--text);}
+.concurso-info{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5;}
+.concurso-prazo{text-align:right;flex-shrink:0;}
+.concurso-prazo-val{font-size:12px;font-family:'DM Mono',monospace;white-space:nowrap;}
+.prazo-urgente{color:var(--red);}
+.prazo-normal{color:var(--amber);}
+.prazo-ok{color:var(--green);}
+.prazo-encerrado{color:var(--muted);}
+.concurso-prazo-label{font-size:10px;color:var(--muted);}
+.source-note{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:1rem;padding:8px 12px;background:var(--surface);border-radius:8px;border-left:2px solid var(--accent);}
+
+.notas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-bottom:2rem;}
+.nota-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;min-height:140px;display:flex;flex-direction:column;}
+.nota-tag{font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;margin-bottom:10px;align-self:flex-start;}
+.nota-titulo{font-size:13px;font-weight:500;color:var(--text);margin-bottom:6px;}
+.nota-texto{font-size:12px;color:var(--muted);line-height:1.6;flex:1;}
+.nota-data{font-size:10px;color:var(--muted);margin-top:10px;font-family:'DM Mono',monospace;}
+
+.empty{text-align:center;padding:3rem 1rem;color:var(--muted);}
+.empty-icon{font-size:32px;margin-bottom:12px;}
+.empty-text{font-size:13px;}
+
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;padding:1rem;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:1.5rem;width:100%;max-width:440px;max-height:90vh;overflow-y:auto;}
+.modal-title{font-size:16px;font-weight:500;margin-bottom:1.25rem;}
+.modal label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px;margin-top:12px;}
+.modal input,.modal select,.modal textarea{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;}
+.modal textarea{resize:vertical;min-height:80px;}
+.modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--accent);}
+.modal select option{background:var(--surface2);}
+.modal-btns{display:flex;gap:8px;margin-top:1.25rem;justify-content:flex-end;}
+.btn-cancel{background:transparent;border:1px solid var(--border2);color:var(--muted);font-size:13px;padding:8px 16px;border-radius:8px;cursor:pointer;}
+.btn-save{background:var(--accent);border:none;color:white;font-size:13px;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:500;}
+.btn-cancel:hover{color:var(--text);}
+.btn-save:hover{opacity:.9;}
+
+footer{text-align:center;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;padding:2rem 0 1rem;border-top:1px solid var(--border);margin-top:2rem;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <div class="nav-avatar"><img src="my-notion-face-transparent.png" onerror="this.style.display='none';this.parentElement.textContent='📚'"></div>
+    <span class="nav-name">Meu espaço de estudos</span>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="showSection('inicio')">início</button>
+    <button class="nav-link" onclick="showSection('cronogramas')">cronogramas</button>
+    <button class="nav-link" onclick="showSection('concursos')">concursos</button>
+    <button class="nav-link" onclick="showSection('notas')">notas</button>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- INÍCIO -->
+  <div id="sec-inicio" class="section active">
+    <div class="hero">
+      <div class="hero-greet">olá, <span>iamanarielly</span> · <span id="greet-time"></span></div>
+      <div class="hero-title">Seu <strong>espaço de estudos</strong><br>para concursos públicos</div>
+      <div class="hero-sub">Tudo em um lugar — cronogramas, anotações e concursos abertos.</div>
+    </div>
+    <div class="stats">
+      <div class="stat purple"><div class="stat-val" id="st-cron">1</div><div class="stat-label">cronogramas ativos</div></div>
+      <div class="stat amber"><div class="stat-val" id="st-dias">45</div><div class="stat-label">dias p/ próxima prova</div></div>
+      <div class="stat green"><div class="stat-val" id="st-prog">0%</div><div class="stat-label">progresso IFCE</div></div>
+      <div class="stat blue"><div class="stat-val" id="st-notas">0</div><div class="stat-label">anotações salvas</div></div>
+    </div>
+    <div class="sec-title">cronogramas ativos</div>
+    <div class="cards" id="cards-inicio"></div>
+    <div class="sec-title">concursos com inscrições abertas</div>
+    <div class="concursos-list" id="conc-inicio"></div>
+  </div>
+
+  <!-- CRONOGRAMAS -->
+  <div id="sec-cronogramas" class="section">
+    <div class="sec-title">cronogramas<button class="sec-add" onclick="openModal('cronograma')">+ adicionar</button></div>
+    <div class="cards" id="cards-cron"></div>
+  </div>
+
+  <!-- CONCURSOS -->
+  <div id="sec-concursos" class="section">
+    <div class="sec-title">concursos abertos · Cariri/CE<button class="sec-add" onclick="openModal('concurso')">+ adicionar</button></div>
+    <div class="source-note">📡 Dados pesquisados em março/2026 — verifique prazos nos sites oficiais antes de se inscrever.</div>
+    <div class="concursos-list" id="lista-conc"></div>
+  </div>
+
+  <!-- NOTAS -->
+  <div id="sec-notas" class="section">
+    <div class="sec-title">anotações e resumos<button class="sec-add" onclick="openModal('nota')">+ nova nota</button></div>
+    <div class="notas-grid" id="grid-notas"></div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal-bg" onclick="closeBg(event)">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Adicionar</div>
+
+    <div id="form-cronograma">
+      <label>Nome do cargo</label>
+      <input id="fc-nome" placeholder="Ex: Assistente em Administração">
+      <label>Órgão</label>
+      <input id="fc-orgao" placeholder="Ex: IFCE">
+      <label>Data da prova</label>
+      <input id="fc-data" type="date">
+      <label>Link do cronograma (arquivo .html)</label>
+      <input id="fc-link" placeholder="Ex: cronograma_ifce.html">
+      <label>Status</label>
+      <select id="fc-status">
+        <option value="prep">Em preparação</option>
+        <option value="active">Ativo</option>
+        <option value="closed">Encerrado</option>
+      </select>
+    </div>
+
+    <div id="form-concurso" style="display:none">
+      <label>Nome do concurso</label>
+      <input id="fa-nome" placeholder="Ex: Prefeitura de Juazeiro do Norte">
+      <label>Cargo(s)</label>
+      <input id="fa-cargo" placeholder="Ex: Agente Administrativo">
+      <label>Banca</label>
+      <input id="fa-banca" placeholder="Ex: AOCP, CEBRASPE...">
+      <label>Nível</label>
+      <select id="fa-nivel">
+        <option value="Médio">Médio</option>
+        <option value="Superior">Superior</option>
+        <option value="Médio/Superior">Médio e Superior</option>
+        <option value="Fundamental">Fundamental</option>
+      </select>
+      <label>Prazo de inscrição</label>
+      <input id="fa-prazo" type="date">
+      <label>Link do edital</label>
+      <input id="fa-link" placeholder="https://...">
+      <label>Observação</label>
+      <input id="fa-obs" placeholder="Ex: prova em Juazeiro, salário R$ 3k...">
+    </div>
+
+    <div id="form-nota" style="display:none">
+      <label>Título</label>
+      <input id="fn-titulo" placeholder="Ex: Resumo Lei 8.112">
+      <label>Disciplina</label>
+      <select id="fn-tag">
+        <option value="lei">Legislação</option>
+        <option value="port">Português</option>
+        <option value="adm">Administração</option>
+        <option value="info">Informática</option>
+        <option value="geral">Geral</option>
+      </select>
+      <label>Conteúdo</label>
+      <textarea id="fn-texto" placeholder="Suas anotações aqui..."></textarea>
+    </div>
+
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" onclick="salvar()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<footer>iamanarielly · espaço de estudos · feito com 🤍</footer>
+
+<script>
+// ── Dados iniciais ──
+const CONCURSOS_INICIAIS = [
+  {
+    id:'ifce26', nome:'IFCE — TAE 2026', cargo:'Assistente em Administração (e outros)',
+    banca:'AOCP', nivel:'Médio/Técnico/Superior', prazo:'2026-03-20',
+    link:'https://www.institutoaocp.org.br',
+    obs:'Prova em Juazeiro do Norte · 20 vagas Assistente Adm · R$ 3.029 + R$ 1.175 alim.'
+  },
+  {
+    id:'cau26', nome:'CAU/CE — Conselho de Arquitetura', cargo:'Assistente Administrativo',
+    banca:'A definir', nivel:'Médio', prazo:'2026-04-22',
+    link:'https://cau.org.br',
+    obs:'75 vagas · Prova em 24/mai · Fortaleza · Inscrições 23/mar a 22/abr'
+  },
+  {
+    id:'unilab26', nome:'UNILAB 2026', cargo:'Assistente em Administração e Técnicos',
+    banca:'IDECAN', nivel:'Médio/Superior', prazo:'2026-03-16',
+    link:'https://www.idecan.org.br',
+    obs:'49 vagas · Prova 19/abr · Redenção e Acarape/CE · R$ 3.029 + benefícios'
+  },
+  {
+    id:'cagece26', nome:'CAGECE — Companhia de Água e Esgoto', cargo:'Múltiplos cargos técnicos',
+    banca:'A definir', nivel:'Médio/Superior', prazo:null,
+    link:'https://www.cagece.com.br',
+    obs:'262 vagas previstas · Salários até R$ 10.302 · Edital ainda não publicado'
+  },
+  {
+    id:'seduc26', nome:'SEDUC/CE — Secretaria de Educação', cargo:'Professores e administrativo',
+    banca:'A definir', nivel:'Médio/Superior', prazo:null,
+    link:'https://www.seduc.ce.gov.br',
+    obs:'Concurso autorizado pelo governador · Edital previsto para 2026 · Aguardar publicação'
+  },
+  {
+    id:'ufca26', nome:'UFCA — Universidade Federal do Cariri', cargo:'Técnico Administrativo em Educação',
+    banca:'FCPC', nivel:'Médio/Superior', prazo:'2026-01-31',
+    link:'https://www.ufca.edu.br',
+    obs:'Campi Barbalha, Brejo Santo e Juazeiro do Norte · Inscrições encerradas · Acompanhe próximos editais'
+  },
+];
+
+const CRONOGRAMAS_INICIAIS = [
+  {
+    id:'ifce2026', nome:'Assistente em Administração', orgao:'IFCE',
+    data:'2026-05-03', link:'cronograma_ifce_assistente_adm.html',
+    status:'active', cor:'#7c6ff7', icone:'📋', progresso:0
+  },
+  {
+    id:'adm_base', nome:'Base Administrativa', orgao:'Coringa · Todos os concursos',
+    data:null, link:'cronograma_adm_base.html',
+    status:'prep', cor:'#52c97a', icone:'🏛️', progresso:0
+  },
+  {
+    id:'port_mat', nome:'Português + Matemática e Lógica', orgao:'Coringa · Todos os concursos',
+    data:null, link:'cronograma_port_mat_logica.html',
+    status:'prep', cor:'#4f8ef7', icone:'📐', progresso:0
+  }
+];
+
+const TAG_COLORS = {
+  lei:{bg:'rgba(247,107,107,0.1)',color:'#f76b6b'},
+  port:{bg:'rgba(79,142,247,0.1)',color:'#4f8ef7'},
+  adm:{bg:'rgba(82,201,122,0.1)',color:'#52c97a'},
+  info:{bg:'rgba(245,166,35,0.1)',color:'#f5a623'},
+  geral:{bg:'rgba(138,138,150,0.1)',color:'#8a8a96'},
+};
+const TAG_NAMES={lei:'Legislação',port:'Português',adm:'Administração',info:'Informática',geral:'Geral'};
+const STATUS_LABEL={active:'Ativo',prep:'Em preparação',closed:'Encerrado'};
+const STATUS_CLASS={active:'badge-active',prep:'badge-prep',closed:'badge-closed'};
+const CORES=['#7c6ff7','#52c97a','#f5a623','#f76b6b','#4f8ef7','#ff7b54'];
+
+// ── Estado ──
+let state = { cronogramas:[...CRONOGRAMAS_INICIAIS], concursos:[...CONCURSOS_INICIAIS], notas:[] };
+
+function save(){ try{localStorage.setItem('hub26',JSON.stringify({cronogramas:state.cronogramas,concursos:state.concursos,notas:state.notas}));}catch(e){} }
+
+function load(){
+  try{
+    const d=localStorage.getItem('hub26');
+    if(d){const p=JSON.parse(d);if(p.cronogramas)state.cronogramas=p.cronogramas;if(p.concursos)state.concursos=p.concursos;if(p.notas)state.notas=p.notas;}
+  }catch(e){}
+}
+
+// ── Nav ──
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l=>{if(l.getAttribute('onclick')?.includes("'"+id+"'"))l.classList.add('active');});
+  render();
+}
+
+// ── Utils ──
+function diasRest(d){ if(!d)return null; const diff=Math.ceil((new Date(d)-new Date())/86400000); return diff; }
+function fmtData(d){ if(!d)return '—'; return new Date(d+'T12:00:00').toLocaleDateString('pt-BR'); }
+
+function prazoInfo(prazo){
+  const d=diasRest(prazo);
+  if(d===null) return {cls:'prazo-encerrado',label:'Sem prazo'};
+  if(d<0) return {cls:'prazo-encerrado',label:'Encerrado'};
+  if(d===0) return {cls:'prazo-urgente',label:'Hoje! ⚠️'};
+  if(d<=3) return {cls:'prazo-urgente',label:d+'d ⚠️'};
+  if(d<=10) return {cls:'prazo-normal',label:d+' dias'};
+  return {cls:'prazo-ok',label:d+' dias'};
+}
+
+// ── Render ──
+function render(){ renderCards(); renderConcursos(); renderNotas(); renderStats(); }
+
+function renderCards(){
+  ['cards-inicio','cards-cron'].forEach(cid=>{
+    const el=document.getElementById(cid); if(!el)return;
+    if(!state.cronogramas.length){
+      el.innerHTML='<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Nenhum cronograma ainda.</div></div>';return;
+    }
+    el.innerHTML=state.cronogramas.map(c=>{
+      const dias=diasRest(c.data);
+      const diasStr=dias===null?'—':dias>0?dias+' dias':'Prova hoje!';
+      const p=c.progresso||0;
+      return `<a class="card" href="${c.link||'#'}" ${c.link&&c.link.startsWith('http')?'target="_blank"':''}>
+        <div class="card-top">
+          <div class="card-icon" style="background:${c.cor}22">${c.icone||'📋'}</div>
+          <span class="card-badge ${STATUS_CLASS[c.status]||'badge-prep'}">${STATUS_LABEL[c.status]||c.status}</span>
+        </div>
+        <div class="card-name">${c.nome}</div>
+        <div class="card-sub">${c.orgao}</div>
+        <div class="card-prog"><div class="card-prog-fill" style="width:${p}%;background:${c.cor}"></div></div>
+        <div class="card-prog-label"><span>progresso</span><span>${p}%</span></div>
+        <div class="card-date"><span>prova</span><span>${fmtData(c.data)} · ${diasStr}</span></div>
+      </a>`;
+    }).join('');
+  });
+}
+
+function renderConcursos(){
+  ['conc-inicio','lista-conc'].forEach(cid=>{
+    const el=document.getElementById(cid); if(!el)return;
+    if(!state.concursos.length){
+      el.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">Nenhum concurso cadastrado.</div></div>';return;
+    }
+    el.innerHTML=state.concursos.map(c=>{
+      const p=prazoInfo(c.prazo);
+      return `<div class="concurso-row">
+        <div>
+          <div class="concurso-nome">${c.nome}</div>
+          <div class="concurso-info">
+            ${c.cargo} · <strong>${c.nivel}</strong> · ${c.banca}
+            ${c.link?` · <a href="${c.link}" target="_blank" style="color:var(--accent);text-decoration:none">edital ↗</a>`:''}
+            ${c.obs?`<br>${c.obs}`:''}
+          </div>
+        </div>
+        <div class="concurso-prazo">
+          <div class="concurso-prazo-val ${p.cls}">${p.label}</div>
+          <div class="concurso-prazo-label">inscrição</div>
+        </div>
+      </div>`;
+    }).join('');
+  });
+}
+
+function renderNotas(){
+  const el=document.getElementById('grid-notas'); if(!el)return;
+  const sn=document.getElementById('st-notas'); if(sn)sn.textContent=state.notas.length;
+  if(!state.notas.length){
+    el.innerHTML='<div class="empty" style="grid-column:1/-1"><div class="empty-icon">📝</div><div class="empty-text">Nenhuma anotação ainda.<br>Registre seus resumos aqui!</div></div>';return;
+  }
+  el.innerHTML=state.notas.map(n=>{
+    const tc=TAG_COLORS[n.tag]||TAG_COLORS.geral;
+    return `<div class="nota-card">
+      <span class="nota-tag" style="background:${tc.bg};color:${tc.color}">${TAG_NAMES[n.tag]||n.tag}</span>
+      <div class="nota-titulo">${n.titulo}</div>
+      <div class="nota-texto">${n.texto}</div>
+      <div class="nota-data">${n.data}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderStats(){
+  const dias=diasRest('2026-05-03');
+  const de=document.getElementById('st-dias'); if(de)de.textContent=dias>0?dias:0;
+  const ce=document.getElementById('st-cron'); if(ce)ce.textContent=state.cronogramas.filter(c=>c.status==='active').length;
+  try{
+    const done=JSON.parse(localStorage.getItem('ifce26')||'[]');
+    const pct=Math.round(done.length/40*100);
+    const pe=document.getElementById('st-prog'); if(pe)pe.textContent=pct+'%';
+    const c=state.cronogramas.find(x=>x.id==='ifce2026'); if(c)c.progresso=pct;
+  }catch(e){}
+}
+
+// ── Modal ──
+let mType='cronograma';
+function openModal(type){
+  mType=type;
+  document.getElementById('modal-bg').classList.add('open');
+  document.getElementById('form-cronograma').style.display=type==='cronograma'?'block':'none';
+  document.getElementById('form-concurso').style.display=type==='concurso'?'block':'none';
+  document.getElementById('form-nota').style.display=type==='nota'?'block':'none';
+  const titles={cronograma:'Adicionar cronograma',concurso:'Adicionar concurso',nota:'Nova anotação'};
+  document.getElementById('modal-title').textContent=titles[type];
+}
+function closeModal(){ document.getElementById('modal-bg').classList.remove('open'); }
+function closeBg(e){ if(e.target===document.getElementById('modal-bg'))closeModal(); }
+
+function salvar(){
+  if(mType==='cronograma'){
+    const nome=document.getElementById('fc-nome').value.trim(); if(!nome)return;
+    const cor=CORES[state.cronogramas.length%CORES.length];
+    state.cronogramas.push({id:'c'+Date.now(),nome,orgao:document.getElementById('fc-orgao').value.trim(),data:document.getElementById('fc-data').value,link:document.getElementById('fc-link').value.trim(),status:document.getElementById('fc-status').value,cor,icone:'📋',progresso:0});
+    ['fc-nome','fc-orgao','fc-link'].forEach(id=>{document.getElementById(id).value='';});
+    document.getElementById('fc-data').value='';
+  } else if(mType==='concurso'){
+    const nome=document.getElementById('fa-nome').value.trim(); if(!nome)return;
+    state.concursos.push({id:'ca'+Date.now(),nome,cargo:document.getElementById('fa-cargo').value.trim(),banca:document.getElementById('fa-banca').value.trim(),nivel:document.getElementById('fa-nivel').value,prazo:document.getElementById('fa-prazo').value,link:document.getElementById('fa-link').value.trim(),obs:document.getElementById('fa-obs').value.trim()});
+    ['fa-nome','fa-cargo','fa-banca','fa-link','fa-obs'].forEach(id=>{document.getElementById(id).value='';});
+    document.getElementById('fa-prazo').value='';
+  } else if(mType==='nota'){
+    const titulo=document.getElementById('fn-titulo').value.trim(); if(!titulo)return;
+    state.notas.unshift({id:'n'+Date.now(),titulo,tag:document.getElementById('fn-tag').value,texto:document.getElementById('fn-texto').value.trim(),data:new Date().toLocaleDateString('pt-BR')});
+    document.getElementById('fn-titulo').value='';
+    document.getElementById('fn-texto').value='';
+  }
+  save(); closeModal(); render();
+}
+
+// ── Saudação ──
+function greet(){
+  const h=new Date().getHours();
+  const s=h<12?'bom dia ☀️':h<18?'boa tarde 🌤️':'boa noite 🌙';
+  const el=document.getElementById('greet-time'); if(el)el.textContent=s;
+}
+
+load(); greet(); render();
+</script>
+</body>
+</html>

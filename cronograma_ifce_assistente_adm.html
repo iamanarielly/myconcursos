@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cronograma IFCE · Assistente em Administração</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="my-notion-face-transparent.png">
+<style>
+:root {
+  --bg:#0f0f11;--surface:#18181c;--surface2:#202026;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#e8e8ec;--muted:#6b6b78;
+  --accent:#7c6ff7;--accent-dim:rgba(124,111,247,0.12);
+  --port:#4f8ef7;--port-bg:rgba(79,142,247,0.1);
+  --lei:#f76b6b;--lei-bg:rgba(247,107,107,0.1);
+  --adm:#52c97a;--adm-bg:rgba(82,201,122,0.1);
+  --info:#f5a623;--info-bg:rgba(245,166,35,0.1);
+  --arq:#2dcbad;--arq-bg:rgba(45,203,173,0.1);
+  --log:#b57bee;--log-bg:rgba(181,123,238,0.1);
+  --pes:#ff7b54;--pes-bg:rgba(255,123,84,0.1);
+  --rev:rgba(138,138,150,0.12);--rev-c:#8a8a96;
+  --sim-bg:rgba(255,123,84,0.1);--sim-c:#ff7b54;
+  --done-bg:rgba(82,201,122,0.05);--done-border:rgba(82,201,122,0.2);--done-check:#52c97a;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:2rem 1rem 5rem;}
+.container{max-width:860px;margin:0 auto;}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;text-decoration:none;margin-bottom:1.5rem;transition:color .15s;}
+.back:hover{color:var(--text);}
+.badge-wrap{display:flex;align-items:center;gap:8px;margin-bottom:.75rem;flex-wrap:wrap;}
+.badge{display:inline-flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.08em;padding:4px 12px;border-radius:20px;}
+.badge-red{color:var(--lei);background:var(--lei-bg);}
+.badge-green{color:var(--adm);background:var(--adm-bg);}
+.badge-pulse span{width:6px;height:6px;border-radius:50%;background:var(--lei);display:inline-block;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+h1{font-size:clamp(20px,5vw,28px);font-weight:300;letter-spacing:-.02em;margin-bottom:4px;}
+h1 strong{font-weight:500;}
+.subtitle{font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:1.5rem;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:1.25rem;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+.stat-val{font-size:20px;font-weight:500;font-family:'DM Mono',monospace;}
+.stat-label{font-size:11px;color:var(--muted);margin-top:2px;}
+.prog-wrap{margin-bottom:1.25rem;}
+.prog-header{display:flex;justify-content:space-between;margin-bottom:6px;}
+.prog-label{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;}
+.prog-bar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--adm));border-radius:3px;transition:width .4s;}
+
+/* Pesos oficiais */
+.pesos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.25rem;}
+.peso-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+.peso-area{font-size:11px;color:var(--muted);margin-bottom:4px;}
+.peso-nums{display:flex;align-items:baseline;gap:6px;}
+.peso-pts{font-size:20px;font-weight:500;font-family:'DM Mono',monospace;}
+.peso-sub{font-size:11px;color:var(--muted);}
+.peso-bar-w{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;margin-top:6px;}
+.peso-bar-f{height:100%;border-radius:2px;}
+
+/* Raio X mini */
+.raiox{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;margin-bottom:1.5rem;}
+.raiox-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;}
+.raiox-disc{font-size:11px;color:var(--muted);margin-bottom:4px;}
+.raiox-pct{font-size:17px;font-weight:500;font-family:'DM Mono',monospace;}
+.raiox-bar{height:3px;background:var(--surface2);border-radius:2px;overflow:hidden;margin-top:4px;}
+.raiox-fill{height:100%;border-radius:2px;}
+
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.5rem;}
+.leg{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);}
+.leg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+
+.tabs{display:flex;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:4px;margin-bottom:1.5rem;overflow-x:auto;}
+.tab{flex:1;min-width:55px;padding:7px 5px;font-size:10px;font-family:'DM Mono',monospace;font-weight:500;text-align:center;border-radius:7px;border:none;cursor:pointer;background:transparent;color:var(--muted);transition:all .15s;white-space:nowrap;}
+.tab:hover{color:var(--text);background:var(--surface2);}
+.tab.active{background:var(--surface2);color:var(--text);border:1px solid var(--border2);}
+.tab .wc{display:none;margin-left:2px;color:var(--done-check);font-size:9px;}
+.tab.done .wc{display:inline;}
+
+.week{display:none;}
+.week.active{display:block;}
+.week-header{font-size:16px;font-weight:500;color:var(--text);margin-bottom:4px;}
+.week-focus{font-size:12px;color:var(--muted);margin-bottom:.75rem;padding-left:12px;border-left:2px solid var(--accent);line-height:1.5;}
+.week-pontos{font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);margin-bottom:.75rem;padding:6px 10px;background:var(--surface2);border-radius:6px;display:inline-block;}
+
+.alert{display:flex;gap:10px;align-items:flex-start;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;line-height:1.6;}
+.alert-lei{background:var(--lei-bg);color:var(--lei);border:.5px solid rgba(247,107,107,0.25);}
+.alert-adm{background:var(--adm-bg);color:var(--adm);border:.5px solid rgba(82,201,122,0.25);}
+.alert-arq{background:var(--arq-bg);color:var(--arq);border:.5px solid rgba(45,203,173,0.25);}
+.alert-port{background:var(--port-bg);color:var(--port);border:.5px solid rgba(79,142,247,0.25);}
+.alert-info{background:var(--info-bg);color:var(--info);border:.5px solid rgba(245,166,35,0.25);}
+
+.grid{display:flex;flex-direction:column;gap:6px;}
+.row{display:grid;grid-template-columns:108px 1fr;gap:12px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;transition:border-color .15s,background .2s;cursor:pointer;}
+.row:hover{border-color:var(--border2);}
+.row.done{background:var(--done-bg);border-color:var(--done-border);}
+.row.prova{border-color:var(--accent);background:var(--accent-dim);cursor:default;}
+.rleft{display:flex;flex-direction:column;gap:3px;}
+.rlabel{font-size:13px;font-weight:500;color:var(--text);}
+.rsub{font-size:11px;color:var(--muted);}
+.chk-area{display:flex;align-items:center;gap:5px;margin-top:6px;}
+.chk-box{width:16px;height:16px;border-radius:4px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.done .chk-box{background:var(--done-check);border-color:var(--done-check);}
+.chk-lbl{font-size:11px;color:var(--muted);}
+.done .chk-lbl{color:var(--done-check);}
+.chk-i{display:none;}
+.done .chk-i{display:block;}
+.blocks{display:flex;flex-direction:column;gap:5px;}
+.block{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;}
+.btime{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;min-width:82px;padding-top:2px;}
+.bright{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.btag{font-size:11px;font-weight:500;padding:2px 9px;border-radius:20px;white-space:nowrap;}
+.bdesc{font-size:12px;color:var(--muted);}
+.tag-port{background:var(--port-bg);color:var(--port);}
+.tag-lei{background:var(--lei-bg);color:var(--lei);}
+.tag-adm{background:var(--adm-bg);color:var(--adm);}
+.tag-info{background:var(--info-bg);color:var(--info);}
+.tag-arq{background:var(--arq-bg);color:var(--arq);}
+.tag-log{background:var(--log-bg);color:var(--log);}
+.tag-pes{background:var(--pes-bg);color:var(--pes);}
+.tag-rev{background:var(--rev);color:var(--rev-c);}
+.tag-sim{background:var(--sim-bg);color:var(--sim-c);}
+.note{margin-top:10px;font-size:12px;color:var(--accent);background:var(--accent-dim);border-radius:8px;padding:10px 14px;font-family:'DM Mono',monospace;}
+.tip-box{margin-top:10px;font-size:12px;color:var(--muted);border-left:2px solid var(--sim-c);padding-left:12px;line-height:1.7;}
+.reset-btn{background:transparent;border:.5px solid var(--border2);color:var(--muted);font-size:11px;font-family:'DM Mono',monospace;padding:5px 12px;border-radius:20px;cursor:pointer;margin-top:1.5rem;}
+.reset-btn:hover{color:var(--text);}
+footer{text-align:center;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border);}
+</style>
+</head>
+<body>
+<div class="container">
+
+<a class="back" href="index.html">← voltar ao hub</a>
+
+<div class="badge-wrap">
+  <span class="badge badge-red badge-pulse"><span></span>prova: 03/05/2026</span>
+  <span class="badge badge-green">raio x + pesos oficiais</span>
+</div>
+<h1>Cronograma <strong>IFCE 2026</strong></h1>
+<div class="subtitle">Assistente em Administração · cargo 202 · 3h/noite · 60 questões · 100 pontos</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val" style="color:var(--lei)" id="dias-stat">43</div><div class="stat-label">dias restantes</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--adm)">20</div><div class="stat-label">vagas imediatas</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--done-check)" id="done-stat">0</div><div class="stat-label">dias concluídos</div></div>
+  <div class="stat"><div class="stat-val" style="color:var(--accent)" id="pct-stat">0%</div><div class="stat-label">progresso</div></div>
+</div>
+
+<div class="prog-wrap">
+  <div class="prog-header"><span class="prog-label">progresso geral</span><span class="prog-label" id="prog-pct">0%</span></div>
+  <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+</div>
+
+<!-- Pesos oficiais da prova -->
+<div style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem;">pesos oficiais da prova · edital ifce 02/2026</div>
+<div class="pesos">
+  <div class="peso-card">
+    <div class="peso-area">Conhecimentos Específicos</div>
+    <div class="peso-nums"><span class="peso-pts" style="color:var(--adm)">70</span><span class="peso-sub">pts · 35q · R$2,0</span></div>
+    <div class="peso-bar-w"><div class="peso-bar-f" style="width:70%;background:var(--adm)"></div></div>
+  </div>
+  <div class="peso-card">
+    <div class="peso-area">Legislação</div>
+    <div class="peso-nums"><span class="peso-pts" style="color:var(--lei)">18</span><span class="peso-sub">pts · 15q · R$1,2</span></div>
+    <div class="peso-bar-w"><div class="peso-bar-f" style="width:18%;background:var(--lei)"></div></div>
+  </div>
+  <div class="peso-card">
+    <div class="peso-area">Língua Portuguesa</div>
+    <div class="peso-nums"><span class="peso-pts" style="color:var(--port)">12</span><span class="peso-sub">pts · 10q · R$1,2</span></div>
+    <div class="peso-bar-w"><div class="peso-bar-f" style="width:12%;background:var(--port)"></div></div>
+  </div>
+</div>
+
+<!-- Raio X por disciplina -->
+<div style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.6rem;">relevância raio x · dentro dos conhecimentos específicos</div>
+<div class="raiox">
+  <div class="raiox-card"><div class="raiox-disc">Adm. Geral</div><div class="raiox-pct" style="color:var(--adm)">16,22%</div><div class="raiox-bar"><div class="raiox-fill" style="width:100%;background:var(--adm)"></div></div></div>
+  <div class="raiox-card"><div class="raiox-disc">Informática</div><div class="raiox-pct" style="color:var(--info)">11,20%</div><div class="raiox-bar"><div class="raiox-fill" style="width:69%;background:var(--info)"></div></div></div>
+  <div class="raiox-card"><div class="raiox-disc">Gestão Pessoas</div><div class="raiox-pct" style="color:var(--pes)">4,63%</div><div class="raiox-bar"><div class="raiox-fill" style="width:29%;background:var(--pes)"></div></div></div>
+  <div class="raiox-card"><div class="raiox-disc">Arquivologia</div><div class="raiox-pct" style="color:var(--arq)">3,47%</div><div class="raiox-bar"><div class="raiox-fill" style="width:21%;background:var(--arq)"></div></div></div>
+  <div class="raiox-card"><div class="raiox-disc">Rac. Lógico</div><div class="raiox-pct" style="color:var(--log)">2,32%</div><div class="raiox-bar"><div class="raiox-fill" style="width:14%;background:var(--log)"></div></div></div>
+  <div class="raiox-card"><div class="raiox-disc">Redação Oficial</div><div class="raiox-pct" style="color:var(--port)">1,54%</div><div class="raiox-bar"><div class="raiox-fill" style="width:10%;background:var(--port)"></div></div></div>
+</div>
+
+<div class="legend">
+  <span class="leg"><span class="leg-dot" style="background:var(--port)"></span>Português</span>
+  <span class="leg"><span class="leg-dot" style="background:var(--lei)"></span>Legislação</span>
+  <span class="leg"><span class="leg-dot" style="background:var(--adm)"></span>Adm/Específicos</span>
+  <span class="leg"><span class="leg-dot" style="background:var(--info)"></span>Informática</span>
+  <span class="leg"><span class="leg-dot" style="background:var(--arq)"></span>Arquivologia</span>
+  <span class="leg"><span class="leg-dot" style="background:var(--pes)"></span>Gestão Pessoas</span>
+  <span class="leg"><span class="leg-dot" style="background:var(--log)"></span>Lógica/Mat</span>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showWeek(0)">Sem 1<span class="wc">✓</span></button>
+  <button class="tab" onclick="showWeek(1)">Sem 2<span class="wc">✓</span></button>
+  <button class="tab" onclick="showWeek(2)">Sem 3<span class="wc">✓</span></button>
+  <button class="tab" onclick="showWeek(3)">Sem 4<span class="wc">✓</span></button>
+  <button class="tab" onclick="showWeek(4)">Sem 5<span class="wc">✓</span></button>
+  <button class="tab" onclick="showWeek(5)">Sem 6<span class="wc">✓</span></button>
+  <button class="tab" onclick="showWeek(6)">Final<span class="wc">✓</span></button>
+</div>
+
+<!-- ══ SEMANA 1 · Português (5 dias) + Legislação início ══ -->
+<div id="week0" class="week active">
+  <div class="week-header">Semana 1 — Português + início da Legislação</div>
+  <div class="week-focus">Português vale 12 pontos (10 questões × 1,2). Foco cirúrgico: interpretação = 44% da disciplina. Apenas 5 dias dedicados a português no cronograma inteiro — aproveite bem.</div>
+  <div class="week-pontos">português: 12 pts · legislação: 18 pts · específicos: 70 pts</div>
+  <div class="alert alert-port">📊 <span><strong>Estratégia Português:</strong> 10 questões na prova. Cada questão vale 1,2pt. Interpretação (44%) + Sintaxe (19,5%) = 64% da disciplina. Foque nesses dois primeiro.</span></div>
+  <div class="grid">
+
+    <div class="row" id="d0" onclick="tog('d0')">
+      <div class="rleft"><div class="rlabel">Dia 1</div><div class="rsub">interpretação #1</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-port">Interpretação</span><span class="bdesc">Leitura estratégica: ideia principal, inferência, vocabulário contextual (27,33%)</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-port">Interpretação</span><span class="bdesc">Significação contextual, sinônimos, antônimos, figuras de linguagem (12,62%)</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões interpretação — filtrar AOCP + Assistente em Adm.</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d1" onclick="tog('d1')">
+      <div class="rleft"><div class="rlabel">Dia 2</div><div class="rsub">sintaxe + morfologia</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-port">Sintaxe</span><span class="bdesc">Análise sintática (7,33%) + uso dos conectivos (4,21%) + regência (3,13%)</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-port">Morfologia</span><span class="bdesc">Classes de palavras (12,41%) + pronomes e colocação pronominal (8,00%)</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões sintaxe + morfologia AOCP</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d2" onclick="tog('d2')">
+      <div class="rleft"><div class="rlabel">Dia 3</div><div class="rsub">pontuação + crase + coesão</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-port">Pontuação</span><span class="bdesc">Uso da vírgula (3,13%) + ponto e vírgula + aspas + crase (2,67%)</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-port">Coesão</span><span class="bdesc">Coesão e coerência (4,21%) + tipologia textual + redação: reescritura</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões pontuação + coesão</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d3" onclick="tog('d3')">
+      <div class="rleft"><div class="rlabel">Dia 4</div><div class="rsub">simulado português</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-rev">Revisão</span><span class="bdesc">Caderno de erros português — foco nos tipos mais errados</span></div></div>
+        <div class="block"><span class="btime">20h–22h</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">40 questões português cronometrado — meta: 75%+ de acerto</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d4" onclick="tog('d4')">
+      <div class="rleft"><div class="rlabel">Dia 5</div><div class="rsub">Lei 8.112 — base</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-lei">Lei 8.112</span><span class="bdesc">Cargo, emprego, função (9,80%) + regime jurídico (9,80%) + provimento e vacância</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-lei">Lei 8.112</span><span class="bdesc">PAD: penalidades, prazos prescricionais (texto literal — AOCP cobra exatamente assim)</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões Lei 8.112 — filtrar AOCP</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d5" onclick="tog('d5')">
+      <div class="rleft"><div class="rlabel">Dia 6</div><div class="rsub">ética + leis dos IFs</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-lei">Decreto 1.171</span><span class="bdesc">Código de ética: deveres, proibições, vedações do servidor (item 14 edital)</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-lei">Lei 11.091 + 11.892</span><span class="bdesc">PCCTAE: carreira TAE + criação dos IFs: finalidades, estrutura, autonomia</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões ética + Lei 11.091 + Lei 11.892</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d6" onclick="tog('d6')">
+      <div class="rleft"><div class="rlabel">Dia 7</div><div class="rsub">simulado semana 1</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h30</span><div class="bright"><span class="btag tag-rev">Revisão</span><span class="bdesc">Caderno de erros da semana — português e legislação</span></div></div>
+        <div class="block"><span class="btime">20h30–22h</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">40 questões: 10 português + 15 legislação + 15 específicos mistos</span></div></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="note">Português: após esta semana, apenas revisão rápida nos simulados. O tempo restante vai todo para Conhecimentos Específicos (70 pontos!).</div>
+</div>
+
+<!-- ══ SEMANA 2 · Legislação crítica (8 dias total) ══ -->
+<div id="week1" class="week">
+  <div class="week-header">Semana 2 — Legislação crítica (improbidade + licitações + processo admin.)</div>
+  <div class="week-focus">Legislação vale 18 pontos (15 questões × 1,2). Improbidade tem 13,78% da disciplina com 0% de desempenho. Licitações domina com 20,72% — e o edital pede a nova Lei 14.133.</div>
+  <div class="alert alert-lei">⚠️ <span><strong>Alerta crítico:</strong> Lei 8.666/93 ainda aparece no Raio X (20,72%) mas o edital 2026 pede Lei 14.133/2021. Estude as duas — AOCP mistura em provas de transição.</span></div>
+  <div class="grid">
+
+    <div class="row" id="d7" onclick="tog('d7')">
+      <div class="rleft"><div class="rlabel">Dia 8</div><div class="rsub">improbidade — 0% desempenho!</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-lei">Lei 8.429</span><span class="bdesc">Atos de improbidade: enriquecimento ilícito, dano ao erário, violação princípios</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-lei">Lei 14.230</span><span class="bdesc">Nova improbidade: dolo específico, sanções, prescrição — diferenças da lei anterior</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões improbidade administrativa</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d8" onclick="tog('d8')">
+      <div class="rleft"><div class="rlabel">Dia 9</div><div class="rsub">licitações</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-lei">Lei 14.133</span><span class="bdesc">Princípios, modalidades (pregão, concorrência, leilão, diálogo competitivo), fases</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-lei">Licitações</span><span class="bdesc">Dispensa (4,86%) + inexigibilidade (4,86%) + contratação direta + contratos</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões licitações — puxe questões pós-2023</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d9" onclick="tog('d9')">
+      <div class="rleft"><div class="rlabel">Dia 10</div><div class="rsub">processo admin. + LIMPE</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-lei">Lei 9.784</span><span class="bdesc">Processo administrativo: recursos (6,53%), direitos dos administrados, prazos</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-lei">Dir. Admin.</span><span class="bdesc">Princípios LIMPE + poderes administrativos + atos administrativos (item 16 edital)</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões processo administrativo + LIMPE</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d10" onclick="tog('d10')">
+      <div class="rleft"><div class="rlabel">Dia 11</div><div class="rsub">simulado legislação</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h30</span><div class="bright"><span class="btag tag-rev">Revisão</span><span class="bdesc">Caderno de erros legislação — foco improbidade (ponto crítico 0% desempenho)</span></div></div>
+        <div class="block"><span class="btime">20h30–22h</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">40 questões legislação: 15 Lei 8.112 + 15 improbidade/licitações + 10 processo</span></div></div>
+      </div>
+    </div>
+
+    <!-- Início Conhecimentos Específicos — Adm. Geral -->
+    <div class="row" id="d11" onclick="tog('d11')">
+      <div class="rleft"><div class="rlabel">Dia 12</div><div class="rsub">adm. — teorias clássicas</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Adm. Geral</span><span class="bdesc">Teoria Clássica (Fayol 7,58%) + Científica (Taylor 5,06%) — princípios e diferenças</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-adm">Adm. Geral</span><span class="bdesc">Neoclássica/PODC (9,62%): Organização, Planejamento, Direção, Controle</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões teorias da administração</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d12" onclick="tog('d12')">
+      <div class="rleft"><div class="rlabel">Dia 13</div><div class="rsub">adm. — liderança + motivação</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Gestão Estratégica</span><span class="bdesc">Liderança e motivação (13,87%!): Maslow, Herzberg, McGregor (X/Y), Vroom</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-adm">Gestão Estratégica</span><span class="bdesc">Planejamento estratégico (3,76%) + SWOT + BSC + missão, visão, valores</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões gestão estratégica + motivação</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d13" onclick="tog('d13')">
+      <div class="rleft"><div class="rlabel">Dia 14</div><div class="rsub">simulado semana 2</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h30</span><div class="bright"><span class="btag tag-rev">Revisão</span><span class="bdesc">Caderno de erros da semana</span></div></div>
+        <div class="block"><span class="btime">20h30–22h</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">40 questões: proporção real — 10 port + 15 leg + 15 específicos</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SEMANA 3 · Conhecimentos Específicos — bloco principal ══ -->
+<div id="week2" class="week">
+  <div class="week-header">Semana 3 — Conhecimentos Específicos: estruturas + qualidade + financeiro</div>
+  <div class="week-focus">70% da prova está aqui. Cada questão específica vale 2 pontos — o dobro de português e legislação. 7 dias inteiros dedicados a este bloco nas semanas 3 e 4.</div>
+  <div class="alert alert-adm">📊 <span><strong>Raio X Específicos:</strong> departamentalização (6,29%), delegação/descentralização (5,06%), adm. financeira (13,87% dentro do bloco) têm 0% de desempenho.</span></div>
+  <div class="grid">
+
+    <div class="row" id="d14" onclick="tog('d14')">
+      <div class="rleft"><div class="rlabel">Dia 15</div><div class="rsub">estruturas organizacionais</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Organizações</span><span class="bdesc">Departamentalização (6,29%): funcional, territorial, produto, cliente, mista</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-adm">Organizações</span><span class="bdesc">Delegação, centralização e descentralização (5,06%) + organograma + fluxograma</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões estruturas organizacionais</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d15" onclick="tog('d15')">
+      <div class="rleft"><div class="rlabel">Dia 16</div><div class="rsub">adm. financeira + orçamento</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Adm. Financeira</span><span class="bdesc">Orçamento público: LOA, LDO, PPA + empenho, liquidação e pagamento (item 8)</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-adm">Adm. Financeira</span><span class="bdesc">Conceitos financeiros na adm. pública + controle de despesas + execução orçamentária</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões adm. financeira + orçamento público</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d16" onclick="tog('d16')">
+      <div class="rleft"><div class="rlabel">Dia 17</div><div class="rsub">qualidade + gestão processos</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Qualidade</span><span class="bdesc">Gestão da qualidade (7,46%): 5S (5,06%), melhoria contínua, PDCA, ferramentas</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-adm">Processos</span><span class="bdesc">Gestão por processos (item 19) + noções de sustentabilidade e uso racional (item 20)</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões qualidade + gestão de processos</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d17" onclick="tog('d17')">
+      <div class="rleft"><div class="rlabel">Dia 18</div><div class="rsub">recursos materiais + logística</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Adm. Material</span><span class="bdesc">Compras, estoques, patrimônio público (item 7) + noções de logística no setor público</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-adm">Competências</span><span class="bdesc">Gestão por competências — Decreto 9.991/2019 + política de desenvolvimento (item 6)</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões recursos materiais + logística</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d18" onclick="tog('d18')">
+      <div class="rleft"><div class="rlabel">Dia 19</div><div class="rsub">adm. pública + comportamental</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Adm. Pública</span><span class="bdesc">Fundamentos e organização do trabalho administrativo (item 4) + modelos de gestão pública</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-adm">Comportamental</span><span class="bdesc">Comportamento organizacional (5,36%): comunicação, poder, conflito, negociação (item 13)</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões adm. pública + comportamento organizacional</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d19" onclick="tog('d19')">
+      <div class="rleft"><div class="rlabel">Dia 20</div><div class="rsub">atendimento + organiz. trabalho</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Atendimento</span><span class="bdesc">Atendimento ao público (item 12): comunicabilidade, presteza, discrição, cortesia</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-adm">Organização</span><span class="bdesc">Organização e planejamento do trabalho admin. (itens 11 e 15) + gerenc. informações</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">25 questões atendimento + organização do trabalho</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d20" onclick="tog('d20')">
+      <div class="rleft"><div class="rlabel">Dia 21</div><div class="rsub">simulado semana 3</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h30</span><div class="bright"><span class="btag tag-rev">Revisão</span><span class="bdesc">Caderno de erros — foco nos pontos com 0% de desempenho</span></div></div>
+        <div class="block"><span class="btime">20h30–22h</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">40 questões proporção real: 10 port + 15 leg + 35 específicos — cronometrado</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SEMANA 4 · Informática + Arquivologia + Gestão Pessoas + Redação ══ -->
+<div id="week3" class="week">
+  <div class="week-header">Semana 4 — Informática + Arquivologia + Gestão de Pessoas + Redação Oficial</div>
+  <div class="week-focus">Todos dentro de Conhecimentos Específicos — cada questão acertada vale 2 pontos. Informática tem 7 dias no cronograma total por ser a 2ª maior do Raio X (11,20%).</div>
+  <div class="alert alert-info">📊 <span><strong>Raio X Informática:</strong> Segurança da Informação (15,45%) é o maior subtópico com 0 questões praticadas. Windows (9,11%) e Excel (7,32%) em seguida. Atalhos: tópico separado (6,16%).</span></div>
+  <div class="grid">
+
+    <div class="row" id="d21" onclick="tog('d21')">
+      <div class="rleft"><div class="rlabel">Dia 22</div><div class="rsub">informática — segurança + SO</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-info">Segurança</span><span class="bdesc">Malware (5,45%): vírus, worm, trojan, ransomware + firewall + antivírus (15,45% total)</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-info">SO + Internet</span><span class="bdesc">Windows (9,11%): arquivos, pastas, atalhos + Internet: protocolos HTTP/HTTPS, intranet</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões segurança + SO + internet</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d22" onclick="tog('d22')">
+      <div class="rleft"><div class="rlabel">Dia 23</div><div class="rsub">informática — Office + atalhos</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-info">Office</span><span class="bdesc">Excel (7,32%): fórmulas SOMA/MÉDIA/SE + Word (3,66%): formatação + PowerPoint + Outlook</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-info">Atalhos</span><span class="bdesc">Teclas de atalho (6,16% — tópico separado!): Ctrl+A/C/V/X/Z/P/S/B/I/U/F/H + F2/F5/Del</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões Office + atalhos — filtrar AOCP</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d23" onclick="tog('d23')">
+      <div class="rleft"><div class="rlabel">Dia 24</div><div class="rsub">arquivologia — gestão docs</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-arq">Arquivologia</span><span class="bdesc">Organização e métodos de arquivamento (41,21%!) + Ciclo Vital / Teoria 3 Idades (17,58%)</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-arq">Arquivologia</span><span class="bdesc">Conceitos (25,07%): corrente, intermediário, permanente + protocolo (5,76%) + classificação</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões arquivologia — filtrar AOCP</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d24" onclick="tog('d24')">
+      <div class="rleft"><div class="rlabel">Dia 25</div><div class="rsub">gestão de pessoas</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-pes">Gestão Pessoas</span><span class="bdesc">Visão geral RH/ARH (33,69%) + comportamento organizacional (22,46%) — 0% desempenho!</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-pes">Gestão Pessoas</span><span class="bdesc">Treinamento e desenvolvimento (14,90%) + recrutamento e seleção (14,90%) + avaliação 360°</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões gestão de pessoas</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d25" onclick="tog('d25')">
+      <div class="rleft"><div class="rlabel">Dia 26</div><div class="rsub">redação oficial + lógica/mat</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-port">Redação Oficial</span><span class="bdesc">Ata (39,61%) + padrão ofício (33,77%) + portaria + princípios — Manual Presidência</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-log">Lógica/Mat</span><span class="bdesc">Raciocínio matemático (52%!): porcentagem, regra de três + proposições + Leis de Morgan</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">15 questões redação oficial + 20 questões raciocínio lógico/matemático</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d26" onclick="tog('d26')">
+      <div class="rleft"><div class="rlabel">Dia 27</div><div class="rsub">informática — revisão + hardware</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-info">Informática</span><span class="bdesc">Hardware (9,29%): dispositivos, memórias, periféricos + redes + software + navegadores</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-info">Informática</span><span class="bdesc">Correio eletrônico (9,29%): conceitos, Outlook, Thunderbird + dispositivos de armazenamento</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões hardware + e-mail + redes</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d27" onclick="tog('d27')">
+      <div class="rleft"><div class="rlabel">Dia 28</div><div class="rsub">simulado semana 4</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h30</span><div class="bright"><span class="btag tag-rev">Revisão</span><span class="bdesc">Caderno de erros — mapear pontos fracos em cada disciplina</span></div></div>
+        <div class="block"><span class="btime">20h30–22h</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">60 questões proporção real da prova: 10 port + 15 leg + 35 específicos — cronometrado</span></div></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="note">Simulado com 60 questões na proporção exata da prova. Anote o tempo gasto em cada área — na prova real você tem 4 horas para 60 questões (4 min por questão).</div>
+</div>
+
+<!-- ══ SEMANA 5 · Revisão profunda por área ══ -->
+<div id="week4" class="week">
+  <div class="week-header">Semana 5 — Revisão profunda + simulados por banca</div>
+  <div class="week-focus">Atacar pontos fracos identificados nos simulados. Máximo de questões AOCP. Lembre: cada questão específica vale 2 pontos — priorize onde erra mais nos Conhecimentos Específicos.</div>
+  <div class="grid">
+
+    <div class="row" id="d28" onclick="tog('d28')">
+      <div class="rleft"><div class="rlabel">Dia 29</div><div class="rsub">revisão específicos #1</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-adm">Revisão Adm.</span><span class="bdesc">Teorias + estruturas + liderança + qualidade — os 4 maiores subtópicos do Raio X</span></div></div>
+        <div class="block"><span class="btime">20h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">50 questões administração geral — só banca AOCP</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d29" onclick="tog('d29')">
+      <div class="rleft"><div class="rlabel">Dia 30</div><div class="rsub">revisão específicos #2</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-info">Revisão Info</span><span class="bdesc">Segurança (15,45%) + atalhos (6,16%) + Windows — os maiores subtópicos</span></div></div>
+        <div class="block"><span class="btime">20h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">50 questões informática — só banca AOCP</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d30" onclick="tog('d30')">
+      <div class="rleft"><div class="rlabel">Dia 31</div><div class="rsub">revisão legislação</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-lei">Revisão Lei</span><span class="bdesc">Lei 8.112 + improbidade + licitações — artigos mais cobrados pela AOCP</span></div></div>
+        <div class="block"><span class="btime">20h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">50 questões legislação — variando as 4 leis + improbidade</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d31" onclick="tog('d31')">
+      <div class="rleft"><div class="rlabel">Dia 32</div><div class="rsub">revisão arq. + gestão pessoas</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-arq">Arquivologia</span><span class="bdesc">Métodos de arquivamento + ciclo vital — foco no bloco 1 (70% da disciplina)</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-pes">Gestão Pessoas</span><span class="bdesc">RH + comportamento + treinamento — os 3 maiores subtópicos (0% desempenho)</span></div></div>
+        <div class="block"><span class="btime">21h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões arquivologia + 20 questões gestão de pessoas</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d32" onclick="tog('d32')">
+      <div class="rleft"><div class="rlabel">Dia 33</div><div class="rsub">simulado completo #1</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–23h</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">60 questões proporção real + análise — 10 port (12pt) + 15 leg (18pt) + 35 espec (70pt)</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d33" onclick="tog('d33')">
+      <div class="rleft"><div class="rlabel">Dia 34</div><div class="rsub">análise + correção</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-rev">Análise</span><span class="bdesc">Analisar pontuação por área — quanto perdeu em específicos vs legislação vs português</span></div></div>
+        <div class="block"><span class="btime">20h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">Questões focadas nas disciplinas com pior desempenho no simulado</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d34" onclick="tog('d34')">
+      <div class="rleft"><div class="rlabel">Dia 35</div><div class="rsub">simulado completo #2</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–21h30</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">60 questões condições reais — cronometrado 4 horas, sem pausas</span></div></div>
+        <div class="block"><span class="btime">21h30–22h</span><div class="bright"><span class="btag tag-rev">Revisão</span><span class="bdesc">Gabarito rápido + pontuação estimada por área</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SEMANA 6 · Intensivão final ══ -->
+<div id="week5" class="week">
+  <div class="week-header">Semana 6 — Intensivão de simulados</div>
+  <div class="week-focus">Ritmo de prova real. Foco total em Conhecimentos Específicos nos simulados — são 70 pontos, o maior bloco. Meta: não perder mais que 10 pontos em específicos.</div>
+  <div class="grid">
+
+    <div class="row" id="d35" onclick="tog('d35')">
+      <div class="rleft"><div class="rlabel">Dia 36</div><div class="rsub">específicos — pontos críticos</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-rev">Flashcards</span><span class="bdesc">Resumo mental: teorias, leis, artigos, conceitos de cada disciplina</span></div></div>
+        <div class="block"><span class="btime">20h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">50 questões específicos — focar nas disciplinas mais fracas do último simulado</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d36" onclick="tog('d36')">
+      <div class="rleft"><div class="rlabel">Dia 37</div><div class="rsub">simulado completo #3</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–23h</span><div class="bright"><span class="btag tag-sim">Simulado</span><span class="bdesc">60 questões proporção real — condições de prova, 4 horas, sem pausas</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d37" onclick="tog('d37')">
+      <div class="rleft"><div class="rlabel">Dia 38</div><div class="rsub">correção + pontos fracos</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-rev">Análise</span><span class="bdesc">Calcular pontuação estimada: específicos (×2) + legislação (×1,2) + port (×1,2)</span></div></div>
+        <div class="block"><span class="btime">20h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">40 questões cirúrgicas nos maiores pontos de perda do simulado</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d38" onclick="tog('d38')">
+      <div class="rleft"><div class="rlabel">Dia 39</div><div class="rsub">revisão legislação final</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-lei">Legislação</span><span class="bdesc">Improbidade + licitações + Lei 8.112 — artigos mais cobrados, texto literal</span></div></div>
+        <div class="block"><span class="btime">20h–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">50 questões legislação — meta: 80%+ de acerto (18 pontos em jogo)</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d39" onclick="tog('d39')">
+      <div class="rleft"><div class="rlabel">Dia 40</div><div class="rsub">revisão geral acumulada</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–22h</span><div class="bright"><span class="btag tag-rev">Revisão geral</span><span class="bdesc">Caderno de erros completo das 6 semanas + resumo final de cada disciplina</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SEMANA FINAL ══ -->
+<div id="week6" class="week">
+  <div class="week-header">Semana final — Consolidação e descanso (24/04 → 03/05)</div>
+  <div class="week-focus">Sem conteúdo novo. Revisão leve dos maiores blocos (específicos). Descanso estratégico — seu cérebro consolida durante o sono.</div>
+  <div class="grid">
+
+    <div class="row" id="d40" onclick="tog('d40')">
+      <div class="rleft"><div class="rlabel">Qui–Sex 24–25/04</div><div class="rsub">revisão leve</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h30</span><div class="bright"><span class="btag tag-adm">Revisão leve</span><span class="bdesc">Específicos: foco nos temas que ainda domina menos — sem pressão</span></div></div>
+        <div class="block"><span class="btime">20h30–22h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">30 questões/noite — só as que você já acerta (para ganhar confiança)</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d41" onclick="tog('d41')">
+      <div class="rleft"><div class="rlabel">Sáb 26/04</div><div class="rsub">simulado final</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–23h</span><div class="bright"><span class="btag tag-sim">Simulado final</span><span class="bdesc">60 questões proporção real — último ensaio antes da prova</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d42" onclick="tog('d42')">
+      <div class="rleft"><div class="rlabel">Dom–Ter 27–29/04</div><div class="rsub">descanso ativo</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">19h–20h</span><div class="bright"><span class="btag tag-rev">Flashcards</span><span class="bdesc">Revisão leve: artigos, teorias, conceitos — só o que já domina</span></div></div>
+        <div class="block"><span class="btime">20h–21h</span><div class="bright"><span class="btag tag-rev">QConcursos</span><span class="bdesc">20 questões fáceis — para entrar confiante na prova</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d43" onclick="tog('d43')">
+      <div class="rleft"><div class="rlabel">Qua–Qui 30/04–01/05</div><div class="rsub">descanso</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">Noite</span><div class="bright"><span class="btag tag-rev">Descanso</span><span class="bdesc">Nada de conteúdo novo. 30min revisão do caderno de erros. Durma bem.</span></div></div>
+      </div>
+    </div>
+
+    <div class="row" id="d44" onclick="tog('d44')">
+      <div class="rleft"><div class="rlabel">Sex 02/05</div><div class="rsub">véspera</div><div class="chk-area"><div class="chk-box"><svg class="chk-i" width="10" height="10" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="chk-lbl">feito</span></div></div>
+      <div class="blocks">
+        <div class="block"><span class="btime">Noite</span><div class="bright"><span class="btag tag-rev">Véspera</span><span class="bdesc">Prepare documentos, separe material, durma cedo. Nada de estudar.</span></div></div>
+      </div>
+    </div>
+
+    <div class="row prova">
+      <div class="rleft">
+        <div class="rlabel" style="color:var(--accent)">Sáb 03/05</div>
+        <div class="rsub" style="color:var(--accent)">dia da prova</div>
+      </div>
+      <div class="blocks">
+        <div class="block"><span class="btime">Manhã</span><div class="bright"><span class="btag tag-rev">Preparo</span><span class="bdesc">Café reforçado, saia cedo, leve documento e caneta</span></div></div>
+        <div class="block"><span class="btime">Prova</span><div class="bright"><span class="btag tag-sim">Prova objetiva</span><span class="bdesc">Período da manhã · 60 questões · 100 pontos · Cargo 202 · IFCE · Banca AOCP</span></div></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="tip-box">Estratégia na prova: comece pelos Conhecimentos Específicos (70 pts — 35 questões × 2pts). Depois Legislação (18 pts). Por último Português (12 pts). Na dúvida, sempre responda — não há anulação por erro.</div>
+</div>
+
+<div style="text-align:center;margin-top:1.5rem;">
+  <button class="reset-btn" onclick="resetAll()">limpar checklist</button>
+</div>
+
+<footer>raio x qconcursos + pesos oficiais edital · banca aocp · cargo 202 · ifce 02/2026 · iamanarielly 🤍</footer>
+</div>
+
+<script>
+const TOTAL = 45;
+const WR = [[0,6],[7,13],[14,20],[21,27],[28,34],[35,39],[40,44]];
+
+function isAuth(){try{return atob(localStorage.getItem('hub_auth')||'')==='concursos2026';}catch(e){return false;}}
+
+function tog(id){
+  if(!isAuth())return;
+  const el=document.getElementById(id);
+  if(!el||el.classList.contains('prova'))return;
+  el.classList.toggle('done');save();updateStats();updateTabs();
+}
+function save(){
+  const done=[];
+  for(let i=0;i<TOTAL;i++){const el=document.getElementById('d'+i);if(el&&el.classList.contains('done'))done.push(i);}
+  try{localStorage.setItem('ifce26',JSON.stringify(done));}catch(e){}
+}
+function load(){
+  try{
+    const d=localStorage.getItem('ifce26');if(!d)return;
+    JSON.parse(d).forEach(i=>{const el=document.getElementById('d'+i);if(el)el.classList.add('done');});
+  }catch(e){}
+}
+function updateStats(){
+  let c=0;
+  for(let i=0;i<TOTAL;i++){const el=document.getElementById('d'+i);if(el&&el.classList.contains('done'))c++;}
+  const pct=Math.round(c/TOTAL*100);
+  const ds=document.getElementById('done-stat');if(ds)ds.textContent=c;
+  const ps=document.getElementById('pct-stat');if(ps)ps.textContent=pct+'%';
+  const pp=document.getElementById('prog-pct');if(pp)pp.textContent=pct+'%';
+  const pf=document.getElementById('prog-fill');if(pf)pf.style.width=pct+'%';
+}
+function updateTabs(){
+  const tabs=document.querySelectorAll('.tab');
+  WR.forEach(([s,e],i)=>{
+    let all=true;
+    for(let d=s;d<=e;d++){const el=document.getElementById('d'+d);if(!el||!el.classList.contains('done')){all=false;break;}}
+    if(tabs[i])tabs[i].classList.toggle('done',all);
+  });
+}
+function showWeek(n){
+  document.querySelectorAll('.week').forEach((w,i)=>w.classList.toggle('active',i===n));
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));
+}
+function resetAll(){
+  if(!isAuth())return;
+  if(!confirm('Limpar todo o progresso?'))return;
+  for(let i=0;i<TOTAL;i++){const el=document.getElementById('d'+i);if(el)el.classList.remove('done');}
+  try{localStorage.removeItem('ifce26');}catch(e){}
+  updateStats();updateTabs();
+}
+const diff=Math.max(0,Math.ceil((new Date('2026-05-03')-new Date())/86400000));
+const ds=document.getElementById('dias-stat');if(ds)ds.textContent=diff;
+load();updateStats();updateTabs();
+</script>
+<script src="auth.js"></script>
+</body>
+</html>
